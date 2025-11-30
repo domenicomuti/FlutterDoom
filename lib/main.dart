@@ -30,7 +30,7 @@ import 'package:path_provider/path_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final ByteData wad = await rootBundle.load("doom1.wad");
+  final ByteData wad = await rootBundle.load("assets/doom1.wad");
   Uint8List wadBytes = wad.buffer.asUint8List(wad.offsetInBytes, wad.lengthInBytes);
 
   final Directory destDirectory = await getApplicationDocumentsDirectory();
