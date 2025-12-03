@@ -35,6 +35,10 @@ static const char rcsid[] = "$Id: d_net.c,v 1.3 1997/02/03 22:01:47 b1 Exp $";
 #include "doomstat.h"
 #include "debug.h"
 
+#include <pthread.h>
+
+extern pthread_mutex_t event_mutex;
+
 #define	NCMD_EXIT		0x80000000
 #define	NCMD_RETRANSMIT		0x40000000
 #define	NCMD_SETUP		0x20000000
@@ -453,21 +457,35 @@ void NetUpdate (void)
 //
 void CheckAbort (void)
 {
-    event_t *ev;
-    int		stoptic;
+    event_t 	*ev;
+	event_t 	ev_copy;
+	int 		localhead;
+    int			stoptic;
 	
     stoptic = I_GetTime () + 2; 
     while (I_GetTime() < stoptic) 
 	I_StartTic (); 
 	
     I_StartTic ();
-    for ( ; eventtail != eventhead 
-	      ; eventtail = (++eventtail)&(MAXEVENTS-1) ) 
+
+	pthread_mutex_lock(&event_mutex);
+	localhead = eventhead;
+	
+    for ( ; eventtail != localhead ; eventtail = (++eventtail)&(MAXEVENTS-1) ) 
     { 
-	ev = &events[eventtail]; 
-	if (ev->type == ev_keydown && ev->data1 == KEY_ESCAPE)
-	    I_Error ("Network game synchronization aborted.");
-    } 
+		ev_copy = events[eventtail];
+		pthread_mutex_unlock(&event_mutex);
+
+		ev = &ev_copy;
+
+		if (ev->type == ev_keydown && ev->data1 == KEY_ESCAPE) {
+			I_Error ("Network game synchronization aborted.");
+		}
+
+		pthread_mutex_lock(&event_mutex);
+	}
+
+	pthread_mutex_unlock(&event_mutex);
 }
 
 

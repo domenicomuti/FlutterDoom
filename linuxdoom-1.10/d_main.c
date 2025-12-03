@@ -33,7 +33,6 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #define	FGCOLOR		8
 
 #include "debug.h"
-#include <pthread.h>
 
 #ifdef NORMALUNIX
 #include <stdio.h>
@@ -81,6 +80,10 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 #include "d_main.h"
 #include "debug.h"
+
+#include <pthread.h>
+
+pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 //
 // D-DoomLoop()
@@ -164,8 +167,12 @@ void DartPostInput(int dart_key, int dart_pressed_down) {
 //
 void D_PostEvent (event_t* ev)
 {
+	pthread_mutex_lock(&event_mutex);
+
     events[eventhead] = *ev;
     eventhead = (++eventhead)&(MAXEVENTS-1);
+
+	pthread_mutex_unlock(&event_mutex);
 }
 
 
@@ -176,19 +183,32 @@ void D_PostEvent (event_t* ev)
 void D_ProcessEvents (void)
 {
     event_t*	ev;
+	event_t 	ev_copy;
+	int 		localhead;
 	
     // IF STORE DEMO, DO NOT ACCEPT INPUT
-    if ( ( gamemode == commercial )
-	 && (W_CheckNumForName("map01")<0) )
+    if ( ( gamemode == commercial ) && (W_CheckNumForName("map01")<0) )
       return;
-	
-    for ( ; eventtail != eventhead ; eventtail = (++eventtail)&(MAXEVENTS-1) )
+
+	pthread_mutex_lock(&event_mutex);
+	localhead = eventhead;
+
+    for ( ; eventtail != localhead ; eventtail = (++eventtail)&(MAXEVENTS-1) )
     {
-	ev = &events[eventtail];
-	if (M_Responder (ev))
-	    continue;               // menu ate the event
-	G_Responder (ev);
+		ev_copy = events[eventtail];
+		pthread_mutex_unlock(&event_mutex);
+
+		ev = &ev_copy;
+
+		if (M_Responder (ev))
+			goto continue_loop;               // menu ate the event
+		G_Responder (ev);
+
+		continue_loop:
+		pthread_mutex_lock(&event_mutex);
     }
+
+	pthread_mutex_unlock(&event_mutex);
 }
 
 
