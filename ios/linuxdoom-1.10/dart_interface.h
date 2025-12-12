@@ -7,6 +7,6 @@ __attribute__((visibility("default"))) __attribute__((used))
 void registerDartPort(Dart_Port port);
 
 __attribute__((visibility("default"))) __attribute__((used))
-void notifyDartFrameReady();
+void NotifyDartFrameReady();
 
 #endif

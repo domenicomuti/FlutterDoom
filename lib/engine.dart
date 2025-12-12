@@ -18,8 +18,10 @@
 
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/material.dart';
 
 class Engine {
   static final Engine _instance = Engine._constructor();
@@ -29,11 +31,14 @@ class Engine {
   late final void Function(int) registerDartPort;
   late final void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>) flutterDoomStart;
   late final void Function(int, int) dartPostInput;
+  late final void Function() flutterDoomQuit;
 
   final int framebufferSize = 64000;
   late final Pointer<UnsignedChar> framebuffer;
   late final Uint32List framebuffer32;
   late final Pointer<Uint32> palette;
+
+  late final AppLifecycleListener appLifecycleListener;
 
   factory Engine() {
     return _instance;
@@ -48,12 +53,43 @@ class Engine {
     }
 
     dartInitializeApiDL = dylib.lookup<NativeFunction<IntPtr Function(Pointer<Void>)>>('Dart_InitializeApiDL').asFunction();
-    registerDartPort = dylib.lookup<NativeFunction<Void Function(Int64)>>('registerDartPort').asFunction();
+    registerDartPort = dylib.lookup<NativeFunction<Void Function(Int64)>>('RegisterDartPort').asFunction();
     flutterDoomStart = dylib.lookup<NativeFunction<Void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>)>>('FlutterDoomStart').asFunction();
     dartPostInput = dylib.lookup<NativeFunction<Void Function(Int32, Int32)>>('DartPostInput').asFunction();
+    flutterDoomQuit = dylib.lookup<NativeFunction<Void Function()>>('I_Quit').asFunction();
 
     framebuffer = malloc<UnsignedChar>(framebufferSize);
     framebuffer32 = Uint32List(framebufferSize);
     palette = malloc<Uint32>(256);
+
+    // TODO: SISTEMARE I_QUIT, NON DEVE PIù ROMPERSI
+
+    appLifecycleListener = AppLifecycleListener(
+      onStateChange: (AppLifecycleState state) {
+        if (state == AppLifecycleState.detached) {
+          debugPrint('HAURA - App is in detached state. Deallocating Oboe...');
+          flutterDoomQuit();
+          sleep(Duration(milliseconds: 30));
+          dylib.close();
+        }
+        else if (state == AppLifecycleState.paused) {
+          debugPrint('HAURA - App is paused. Pausing Oboe...');
+
+        }
+        else if (state == AppLifecycleState.resumed) {
+          debugPrint('HAURA - App is resumed. Resuming Oboe...');
+
+        }
+      }
+    );
+
+    dartInitializeApiDL(NativeApi.initializeApiDLData);
+    
+    ReceivePort receivePort = ReceivePort();
+    registerDartPort(receivePort.sendPort.nativePort);
+
+    receivePort.listen((dynamic message) async {
+
+    });
   }
 }

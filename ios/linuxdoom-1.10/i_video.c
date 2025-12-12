@@ -100,7 +100,7 @@ void I_FinishUpdate (void)
     
     }
 
-    notifyDartFrameReady();
+    NotifyDartFrameReady();
 }
 
 void I_ReadScreen (byte* scr)

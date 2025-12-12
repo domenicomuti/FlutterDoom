@@ -50,6 +50,8 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 int	mb_used = 6;
 
+extern boolean exit_doom_loop;
+
 
 void
 I_Tactile
@@ -116,11 +118,12 @@ void I_Init (void)
 void I_Quit (void)
 {
     D_QuitNetGame ();
-    I_ShutdownSound();
-    I_ShutdownMusic();
+    //I_ShutdownSound();
+    //I_ShutdownMusic();
     M_SaveDefaults ();
     I_ShutdownGraphics();
-    exit(0);
+
+    exit_doom_loop = true;
 }
 
 void I_WaitVBL(int count)

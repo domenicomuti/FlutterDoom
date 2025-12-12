@@ -85,6 +85,8 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+boolean exit_doom_loop = false;
+
 //
 // D-DoomLoop()
 // Not a globally visible function,
@@ -437,6 +439,8 @@ void D_DoomLoop (void)
 #ifndef SNDINTR
 	// Update sound output.
 	I_SubmitSound();
+
+	if (exit_doom_loop) break;
 #endif
     }
 }
