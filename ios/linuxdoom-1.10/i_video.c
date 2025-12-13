@@ -53,6 +53,8 @@ void I_InitGraphics (void)
 
 void I_ShutdownGraphics(void)
 {
+    memset(screens[0], 0, SCREENWIDTH*SCREENHEIGHT);
+    NotifyDartFrameReady();
 }
 
 void I_StartFrame (void)
@@ -100,7 +102,7 @@ void I_FinishUpdate (void)
     
     }
 
-    notifyDartFrameReady();
+    NotifyDartFrameReady();
 }
 
 void I_ReadScreen (byte* scr)

@@ -21,10 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterdoom/doom.dart';
 import 'package:flutterdoom/engine.dart';
-import 'package:flutterdoom/keyboard/bottom_keys.dart';
-import 'package:flutterdoom/keyboard/directional_keys.dart';
-import 'package:flutterdoom/keyboard/fire_key.dart';
-import 'package:flutterdoom/keyboard/top_keys.dart';
+import 'package:flutterdoom/keyboard/portrait_keyboard.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
@@ -75,25 +72,7 @@ class MainApp extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Doom(wadPath: wadPath),
-              Expanded(child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      SystemKeys(),
-                      NumericKeys(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          DirectionalKeys(),
-                          FireKey()
-                        ]
-                      ),
-                      BottomKeys()
-                    ]
-                  )
-                )
-              )
+              PortraitKeyboard()
             ]
           )
         )

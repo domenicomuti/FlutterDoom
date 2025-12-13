@@ -83,7 +83,11 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 #include <pthread.h>
 
+#include "dart_interface.h"
+
 pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+boolean exit_doom_loop = false;
 
 //
 // D-DoomLoop()
@@ -437,6 +441,8 @@ void D_DoomLoop (void)
 #ifndef SNDINTR
 	// Update sound output.
 	I_SubmitSound();
+
+	//if (exit_doom_loop > 0) break;
 #endif
     }
 }
@@ -1196,6 +1202,14 @@ void* D_DoomMain (void* args)
     }
 
     D_DoomLoop ();  // never returns
+
+	// The content of the I_Quit function has been moved here, upon exiting the D_DoomLoop function
+	/*D_QuitNetGame ();
+    //I_ShutdownSound();
+    //I_ShutdownMusic();
+    M_SaveDefaults ();
+	I_ShutdownGraphics();
+	sendDartMessage("doom_quit", 0.0);*/
     
     return NULL;
 }

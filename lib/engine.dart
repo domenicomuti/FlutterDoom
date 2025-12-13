@@ -18,22 +18,22 @@
 
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:isolate';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/material.dart';
 
 class Engine {
   static final Engine _instance = Engine._constructor();
 
   late final DynamicLibrary dylib;
   late final int Function(Pointer<Void>) dartInitializeApiDL;
-  late final void Function(int) registerDartPort;
+  late final void Function(int) registerDartFramePort;
+  late final void Function(int) registerDartGenericPort;
   late final void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>) flutterDoomStart;
+  late final void Function() flutterDoomQuit;
   late final void Function(int, int) dartPostInput;
 
-  final int framebufferSize = 64000;
-  late final Pointer<UnsignedChar> framebuffer;
-  late final Uint32List framebuffer32;
-  late final Pointer<Uint32> palette;
+  late final AppLifecycleListener appLifecycleListener;
 
   factory Engine() {
     return _instance;
@@ -48,12 +48,34 @@ class Engine {
     }
 
     dartInitializeApiDL = dylib.lookup<NativeFunction<IntPtr Function(Pointer<Void>)>>('Dart_InitializeApiDL').asFunction();
-    registerDartPort = dylib.lookup<NativeFunction<Void Function(Int64)>>('registerDartPort').asFunction();
+    registerDartFramePort = dylib.lookup<NativeFunction<Void Function(Int64)>>('RegisterDartFramePort').asFunction();
+    registerDartGenericPort = dylib.lookup<NativeFunction<Void Function(Int64)>>('RegisterDartGenericPort').asFunction();
     flutterDoomStart = dylib.lookup<NativeFunction<Void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>)>>('FlutterDoomStart').asFunction();
+    flutterDoomQuit = dylib.lookup<NativeFunction<Void Function()>>('I_Quit').asFunction();
     dartPostInput = dylib.lookup<NativeFunction<Void Function(Int32, Int32)>>('DartPostInput').asFunction();
 
-    framebuffer = malloc<UnsignedChar>(framebufferSize);
-    framebuffer32 = Uint32List(framebufferSize);
-    palette = malloc<Uint32>(256);
+    appLifecycleListener = AppLifecycleListener(
+      onStateChange: (AppLifecycleState state) {
+        if (state == AppLifecycleState.detached) {
+          flutterDoomQuit();
+          sleep(Duration(milliseconds: 300));
+          dylib.close();
+        }
+      }
+    );
+
+    dartInitializeApiDL(NativeApi.initializeApiDLData);
+    
+    ReceivePort receiveMessagePort = ReceivePort();
+    registerDartGenericPort(receiveMessagePort.sendPort.nativePort);
+
+    receiveMessagePort.listen((dynamic message) async {
+      switch (message[0]) {
+        case 'doom_quit':
+          sleep(Duration(milliseconds: 300));
+          dylib.close();
+          break;
+      }
+    });
   }
 }
