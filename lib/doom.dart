@@ -18,6 +18,7 @@
 
 import 'dart:ffi';
 import 'dart:isolate';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
@@ -33,26 +34,33 @@ class Doom extends StatefulWidget {
 }
 
 class _DoomState extends State<Doom> {
+  final int framebufferSize = 64000;
+  late final Pointer<UnsignedChar> framebuffer;
+  late final Uint32List framebuffer32;
+  late final Pointer<Uint32> palette;
+
   ui.Image? frame;
 
   @override
   void initState() {
     super.initState();
 
+    framebuffer = malloc<UnsignedChar>(framebufferSize);
+    framebuffer32 = Uint32List(framebufferSize);
+    palette = malloc<Uint32>(256);
+
     Engine engine = Engine();
-
-    engine.dartInitializeApiDL(NativeApi.initializeApiDLData);
     
-    ReceivePort receivePort = ReceivePort();
-    engine.registerDartPort(receivePort.sendPort.nativePort);
+    ReceivePort receiveFramePort = ReceivePort();
+    engine.registerDartFramePort(receiveFramePort.sendPort.nativePort);
 
-    receivePort.listen((dynamic message) async {
+    receiveFramePort.listen((dynamic message) async {
       // Invoked at new frame ready
-      for (int i=0; i<engine.framebufferSize; i++) {
-        engine.framebuffer32[i] = engine.palette[engine.framebuffer[i]];
+      for (int i=0; i<framebufferSize; i++) {
+        framebuffer32[i] = palette[framebuffer[i]];
       }
 
-      ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(engine.framebuffer32.buffer.asUint8List());
+      ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(framebuffer32.buffer.asUint8List());
 
       final ui.Codec codec = await ui.ImageDescriptor.raw(
         immutableBuffer,
@@ -69,7 +77,7 @@ class _DoomState extends State<Doom> {
       });
     });
 
-    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), engine.framebuffer, engine.palette);
+    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), framebuffer, palette);
   }
 
   @override

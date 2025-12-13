@@ -76,6 +76,7 @@ ticcmd_t* I_BaseTiccmd (void);
 
 // Called by M_Responder when quit is selected.
 // Clean exit, displays sell blurb.
+__attribute__((visibility("default"))) __attribute__((used))
 void I_Quit (void);
 
 
