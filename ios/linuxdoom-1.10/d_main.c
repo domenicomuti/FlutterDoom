@@ -796,7 +796,7 @@ void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_pal
 		*last_slash = '\0';
 	}
 
-	LOG("SAVE PATH: %s", save_path);
+	LOG("SAVE PATH: %s\n", save_path);
 
 	external_palette = _external_palette;
 
@@ -807,10 +807,10 @@ void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_pal
 		LOG("ThreadArgs error");
 		return;
 	}
-	thread_args->wad_path = wad_path;
+	thread_args->wad_path = strdup(wad_path);
 	thread_args->external_fb = external_fb;
 
-	LOG("FRAMEBUFFER ADDRES %p", external_fb);
+	LOG("EXTERNAL FRAMEBUFFER ADDRESS %p\n", external_fb);
 
     if (pthread_create(&doom_thread, NULL, &D_DoomMain, thread_args) != 0) {
         LOG("pthread_create error");
@@ -833,6 +833,7 @@ void* D_DoomMain (void* args)
     FindResponseFile ();
 	
     IdentifyVersion (thread_args->wad_path);
+	free(thread_args->wad_path);
 	
     setbuf (stdout, NULL);
     modifiedgame = false;

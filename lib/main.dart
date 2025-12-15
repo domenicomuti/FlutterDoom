@@ -27,25 +27,31 @@ import 'package:path_provider/path_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  Directory destDirectory = await getApplicationDocumentsDirectory();
-  String wadPath = "${destDirectory.path}/doom1.wad";
-  File file = File(wadPath);
-
-  if (!file.existsSync()) {
-    ByteData wad = await rootBundle.load("assets/doom1.wad");
-    Uint8List wadBytes = wad.buffer.asUint8List(0);  
-    await file.writeAsBytes(wadBytes, flush: true);
-  }
-
   Engine();   // Initialize the singleton Engine
+  
+  if (Platform.isAndroid || Platform.isIOS) {
+    Directory destDirectory = await getApplicationDocumentsDirectory();
+    String wadPath = "${destDirectory.path}/doom1.wad";
+    File file = File(wadPath);
 
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ])
-  .then((_) {
-    runApp(MainApp(wadPath: wadPath));
-  });
+    if (!file.existsSync()) {
+      ByteData wad = await rootBundle.load("assets/doom1.wad");
+      Uint8List wadBytes = wad.buffer.asUint8List(0);  
+      await file.writeAsBytes(wadBytes, flush: true);
+    }
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ])
+    .then((_) {
+      runApp(MainApp(wadPath: wadPath));
+    });
+  }
+  else {
+    //runApp(MainApp(wadPath: "/home/bitsparkle/Projects/flutter-doom/assets/doom1.wad"));
+    runApp(MainApp(wadPath: "doom1.wad"));
+  }
 }
 
 class MainApp extends StatelessWidget {
@@ -56,26 +62,29 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
+      theme: (!Platform.isAndroid && !Platform.isIOS) ? null : ThemeData(
         fontFamily: 'BigBlue_TerminalPlus'
       ),
-      builder: (context, child) {
+      builder: (!Platform.isAndroid && !Platform.isIOS) ? null : (context, child) {
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: const SystemUiOverlayStyle(statusBarIconBrightness: Brightness.light),
           child: child!
         );
       },
       home: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 15, 15, 15),
-        body: SafeArea(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Doom(wadPath: wadPath),
-              PortraitKeyboard()
-            ]
+        backgroundColor: Platform.isAndroid || Platform.isIOS ? const Color.fromARGB(255, 15, 15, 15) : Colors.black,
+        body: Platform.isAndroid || Platform.isIOS ?
+          SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Doom(wadPath: wadPath),
+                PortraitKeyboard()
+              ]
+            )
           )
-        )
+          :
+          Doom(wadPath: wadPath)
       )
     );
   }

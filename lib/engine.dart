@@ -19,6 +19,7 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,11 @@ class Engine {
 
   late final AppLifecycleListener appLifecycleListener;
 
+  final int framebufferSize = 64000;
+  late final Pointer<UnsignedChar> framebuffer = malloc<UnsignedChar>(framebufferSize);
+  late final Uint32List framebuffer32 = Uint32List(framebufferSize);
+  late final Pointer<Uint32> palette = malloc<Uint32>(256);
+
   factory Engine() {
     return _instance;
   }
@@ -43,7 +49,7 @@ class Engine {
     if (Platform.isIOS) {
       dylib = DynamicLibrary.process();
     }
-    else {
+    else if (Platform.isAndroid || Platform.isLinux) {
       dylib = DynamicLibrary.open('libdoom.so');
     }
 
@@ -54,21 +60,26 @@ class Engine {
     flutterDoomQuit = dylib.lookup<NativeFunction<Void Function()>>('I_Quit').asFunction();
     dartPostInput = dylib.lookup<NativeFunction<Void Function(Int32, Int32)>>('DartPostInput').asFunction();
 
-    appLifecycleListener = AppLifecycleListener(
-      onStateChange: (AppLifecycleState state) {
-        if (state == AppLifecycleState.detached) {
-          flutterDoomQuit();
-          sleep(Duration(milliseconds: 300));
-          dylib.close();
-        }
-      }
-    );
+    if (Platform.isAndroid) {
+      // TODO: check iOS
 
+      appLifecycleListener = AppLifecycleListener(
+        onStateChange: (AppLifecycleState state) {
+          if (state == AppLifecycleState.detached) {
+            flutterDoomQuit();
+            sleep(Duration(milliseconds: 300));
+            dylib.close();
+          }
+        }
+      );
+    }
+
+    // TODO: needs to be completed and tested
     dartInitializeApiDL(NativeApi.initializeApiDLData);
     
     ReceivePort receiveMessagePort = ReceivePort();
     registerDartGenericPort(receiveMessagePort.sendPort.nativePort);
-
+    
     receiveMessagePort.listen((dynamic message) async {
       switch (message[0]) {
         case 'doom_quit':

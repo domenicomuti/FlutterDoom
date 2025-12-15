@@ -72,21 +72,15 @@ add_library(doom SHARED ${SOURCES})
 
 target_compile_options(doom PRIVATE
     -g -Wall -DNORMALUNIX -DLINUX
-
-	-std=c17
-
-	-Wno-uninitialized
-	-Wno-unsequenced
-	-Wno-unused-result
-	-Wno-pointer-to-int-cast
-	-Wno-int-to-pointer-cast
 	-Wno-unused-const-variable
-	-Wno-unused-variable
-	-Wno-unused-but-set-variable
-	-Wno-macro-redefined
 )
 
 target_link_libraries(doom PRIVATE
-	log
 	m
 )
+
+if(ANDROID)
+	target_link_libraries(doom PRIVATE
+		log
+	)
+endif()
