@@ -46,7 +46,7 @@ class Engine {
   }
 
   Engine._constructor() {
-    if (Platform.isIOS) {
+    if (Platform.isIOS || Platform.isMacOS) {
       dylib = DynamicLibrary.process();
     }
     else if (Platform.isAndroid || Platform.isLinux) {

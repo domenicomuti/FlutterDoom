@@ -48,9 +48,9 @@ void main() async {
       runApp(MainApp(wadPath: wadPath));
     });
   }
-  else {
-    //runApp(MainApp(wadPath: "/home/bitsparkle/Projects/flutter-doom/assets/doom1.wad"));
-    runApp(MainApp(wadPath: "doom1.wad"));
+  else if (Platform.isMacOS) {
+    // TODO: TEMP
+    runApp(MainApp(wadPath: "../Frameworks/App.framework/Resources/flutter_assets/assets/doom1.wad"));
   }
 }
 

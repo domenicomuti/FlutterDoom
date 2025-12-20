@@ -17,6 +17,7 @@
  */
 
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui' as ui;
 import 'package:ffi/ffi.dart';
@@ -36,7 +37,7 @@ class Doom extends StatefulWidget {
   final String wadPath;
 
   const Doom({super.key, required this.wadPath});
-  
+
   @override
   State<Doom> createState() => _DoomState();
 }
@@ -64,7 +65,7 @@ class _DoomState extends State<Doom> {
     nodeAttachment = node.attach(context, onKeyEvent: _handleKeyPress);
 
     Engine engine = Engine();
-    
+
     receiveFramePort = ReceivePort();
     engine.registerDartFramePort(receiveFramePort.sendPort.nativePort);
 
@@ -81,11 +82,11 @@ class _DoomState extends State<Doom> {
         width: 320,
         height: 200,
         rowBytes: null,
-        pixelFormat: ui.PixelFormat.rgba8888, 
+        pixelFormat: ui.PixelFormat.rgba8888,
       ).instantiateCodec();
 
       ui.FrameInfo frameInfo = await codec.getNextFrame();
-      
+
       frame = frameInfo.image;
 
       model.refresh();
@@ -114,7 +115,7 @@ class _DoomState extends State<Doom> {
 
     double destWidth;
     double destHeight;
-    
+
     if (mediaquery.size.width >= mediaquery.size.height) {
       destHeight = mediaquery.size.height - mediaquery.padding.top - mediaquery.padding.bottom;
       destWidth = destHeight * 1.6;
@@ -139,11 +140,13 @@ class _DoomState extends State<Doom> {
           );
         }
         else {
-          return Center(child: CustomPaint(
-            willChange: true,
-            painter: FramebufferPainter(width: destWidth, height: destHeight, frame: frame!),
-            size: ui.Size(destWidth, destHeight)
-          ));
+          return Center(
+            child: CustomPaint(
+              willChange: true,
+              painter: FramebufferPainter(width: destWidth, height: destHeight, frame: frame!),
+              size: ui.Size(destWidth, destHeight)
+            )
+          );
         }
       }
     );
@@ -183,13 +186,11 @@ class _DoomState extends State<Doom> {
         asciiCode = AsciiKeys.keyCodes["KEY_TAB"]!;
         break;
 
-      case "Control Left":
       case "Control Right":
         asciiCode = AsciiKeys.keyCodes["KEY_RCTRL"]!;
         break;
 
       case "Shift Right":
-      case "Shift Left":
         asciiCode = AsciiKeys.keyCodes["KEY_RSHIFT"]!;
         break;
 
@@ -254,22 +255,17 @@ class _DoomState extends State<Doom> {
         break;
 
       case "Alt Right":
-        asciiCode = AsciiKeys.keyCodes["KEY_RALT"]!;
-        break;
-
-      case "Z":
-        asciiCode = AsciiKeys.keyCodes[","]!;
-        break;
-
-      case "X":
-        asciiCode = AsciiKeys.keyCodes["."]!;
+        if (Platform.isMacOS || Platform.isIOS) {
+          asciiCode = AsciiKeys.keyCodes["KEY_RCTRL"]!;
+        }
+        else {
+          asciiCode = AsciiKeys.keyCodes["KEY_RALT"]!;
+        }
         break;
 
       default:
         asciiCode = event.logicalKey.keyId;
     }
-
-    //print(event);
 
     engine.dartPostInput(asciiCode, event is KeyDownEvent || event is KeyRepeatEvent ? 1 : 0);
     return KeyEventResult.handled;
@@ -287,10 +283,10 @@ class FramebufferPainter extends CustomPainter {
   void paint(ui.Canvas canvas, ui.Size size) {
     Rect src = Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble());
     Rect dst = Rect.fromLTWH(0, 0, width, height);
-    
+
     canvas.drawImageRect(frame, src, dst, Paint());
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
