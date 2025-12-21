@@ -14,6 +14,8 @@ Pod::Spec.new do |s|
   s.prepare_command = "chmod +x ../doomsource_apple_workaround.sh && ../doomsource_apple_workaround.sh"
   s.source = { :path => '.' }
   s.source_files = 'linuxdoom-1.10/**/*.c'
-  s.dependency 'Flutter'
-  s.platform = :ios, '13.0'
+  s.dependency 'FlutterMacOS'
+  s.platform = :osx, '10.11'
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.swift_version = '5.0'
 end

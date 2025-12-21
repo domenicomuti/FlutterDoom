@@ -85,6 +85,10 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 #include "dart_interface.h"
 
+#if IS_IOS || IS_MACOS
+	#include <mach-o/dyld.h>
+#endif
+
 pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 boolean exit_doom_loop = false;
@@ -178,7 +182,6 @@ void D_PostEvent (event_t* ev)
 
 	pthread_mutex_unlock(&event_mutex);
 }
-
 
 //
 // D_ProcessEvents
@@ -787,16 +790,46 @@ void FindResponseFile (void)
 	}
 }
 
-
 void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_palette) {
+	char wad_path_full[1024];
+	char* last_slash;
 
-	strcpy(save_path, wad_path);
-	char* last_slash = strrchr(save_path, '/');
+	#if IS_LINUX || IS_MACOS
+		#if IS_LINUX
+		ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
+		if (count != -1) wad_path_full[count] = '\0';
+			
+		#elif IS_MACOS
+		uint32_t size = sizeof(wad_path_full);
+
+		if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
+			fprintf(stderr, "Error _NSGetExecutablePath\n");
+			return;
+		}
+		#endif
+
+		last_slash = strrchr(wad_path_full, '/');
+		if (last_slash != NULL && last_slash != wad_path_full) {
+			last_slash += 1;
+			*last_slash = '\0';
+		}
+
+		strcat(wad_path_full, wad_path);
+
+	#else
+	strcpy(wad_path_full, wad_path);
+
+	#endif
+
+	LOG("WAD PATH %s\n", wad_path_full);
+	
+	strcpy(save_path, wad_path_full);
+	last_slash = strrchr(save_path, '/');
 	if (last_slash != NULL && last_slash != save_path && strlen(save_path) != 1) {
 		*last_slash = '\0';
 	}
 
-	LOG("SAVE PATH: %s", save_path);
+	LOG("SAVE PATH: %s\n", save_path);
 
 	external_palette = _external_palette;
 
@@ -807,10 +840,10 @@ void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_pal
 		LOG("ThreadArgs error");
 		return;
 	}
-	thread_args->wad_path = wad_path;
+	thread_args->wad_path = strdup(wad_path_full);
 	thread_args->external_fb = external_fb;
 
-	LOG("FRAMEBUFFER ADDRES %p", external_fb);
+	LOG("EXTERNAL FRAMEBUFFER ADDRESS %p\n", external_fb);
 
     if (pthread_create(&doom_thread, NULL, &D_DoomMain, thread_args) != 0) {
         LOG("pthread_create error");
@@ -833,6 +866,7 @@ void* D_DoomMain (void* args)
     FindResponseFile ();
 	
     IdentifyVersion (thread_args->wad_path);
+	free(thread_args->wad_path);
 	
     setbuf (stdout, NULL);
     modifiedgame = false;
