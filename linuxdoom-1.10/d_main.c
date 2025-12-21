@@ -85,8 +85,8 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 #include "dart_interface.h"
 
-#if defined(__APPLE__) && !TARGET_OS_IPHONE
-#include <mach-o/dyld.h>
+#if IS_IOS || IS_MACOS
+	#include <mach-o/dyld.h>
 #endif
 
 pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -794,24 +794,31 @@ void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_pal
 	char wad_path_full[1024];
 	char* last_slash;
 
-	#if !defined(__ANDROID__) && (defined(__linux__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
-	uint32_t size = sizeof(wad_path_full);
+	#if IS_LINUX || IS_MACOS
+		#if IS_LINUX
+		ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
+		if (count != -1) wad_path_full[count] = '\0';
+			
+		#elif IS_MACOS
+		uint32_t size = sizeof(wad_path_full);
 
-	if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
-        fprintf(stderr, "Error _NSGetExecutablePath\n");
-        return;
-    }
+		if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
+			fprintf(stderr, "Error _NSGetExecutablePath\n");
+			return;
+		}
+		#endif
 
-	last_slash = strrchr(wad_path_full, '/');
-	if (last_slash != NULL && last_slash != wad_path_full) {
-		last_slash += 1;
-		*last_slash = '\0';
-	}
+		last_slash = strrchr(wad_path_full, '/');
+		if (last_slash != NULL && last_slash != wad_path_full) {
+			last_slash += 1;
+			*last_slash = '\0';
+		}
 
-	strcat(wad_path_full, wad_path);
+		strcat(wad_path_full, wad_path);
 
 	#else
 	strcpy(wad_path_full, wad_path);
+
 	#endif
 
 	LOG("WAD PATH %s\n", wad_path_full);

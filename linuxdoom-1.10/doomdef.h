@@ -23,6 +23,32 @@
 #ifndef __DOOMDEF__
 #define __DOOMDEF__
 
+#if defined(__APPLE__)
+    #include <TargetConditionals.h>
+    #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
+        #define IS_IOS 1
+        #define IS_MACOS 0
+    #else
+        #define IS_IOS 0
+        #define IS_MACOS 1
+    #endif
+#else
+    #define IS_IOS 0
+    #define IS_MACOS 0
+#endif
+
+#if defined(__ANDROID__)
+    #define IS_ANDROID 1
+#else
+    #define IS_ANDROID 0
+#endif
+
+#if defined(__linux__) && !IS_ANDROID && !defined(__APPLE__)
+    #define IS_LINUX 1
+#else
+    #define IS_LINUX 0
+#endif
+
 #include <stdio.h>
 #include <string.h>
 

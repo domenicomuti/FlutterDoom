@@ -52,6 +52,13 @@ void main() async {
     // TODO: TEMP
     runApp(MainApp(wadPath: "../Frameworks/App.framework/Resources/flutter_assets/assets/doom1.wad"));
   }
+  else if (Platform.isLinux) {
+    // TODO: TEMP
+    runApp(MainApp(wadPath: "data/flutter_assets/assets/doom1.wad"));
+  }
+  else {
+    // TODO: WINDOWS
+  }
 }
 
 class MainApp extends StatelessWidget {
