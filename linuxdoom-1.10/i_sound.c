@@ -30,16 +30,19 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
 #include <math.h>
 
-#include <sys/time.h>
-#include <sys/types.h>
+//#include <sys/time.h>
+//#include <sys/types.h>
 
-#ifndef LINUX
-#include <sys/filio.h>
-#endif
+//#ifndef LINUX
+//#include <sys/filio.h>
+//#endif
 
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
+#include "doomdef.h"
+
+#include "d_unistd.h"
+
+//#include <sys/ioctl.h>
 #include <errno.h>
 
 // Linux voxware output.
@@ -57,7 +60,6 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 #include "m_misc.h"
 #include "w_wad.h"
 
-#include "doomdef.h"
 #include "debug.h"
 
 // UNIX hack, to be removed.
@@ -158,7 +160,7 @@ int*		channelrightvol_lookup[NUM_CHANNELS];
 //
 // Safe ioctl, convenience.
 //
-void
+/*void
 myioctl
 ( int	fd,
   int	command,
@@ -173,7 +175,7 @@ myioctl
 	LOG("errno=%d\n", errno);
 	exit(-1);
     }
-}
+}*/
 
 
 
@@ -738,6 +740,7 @@ void I_ShutdownSound(void)
 void
 I_InitSound()
 { 
+/*
 #ifdef SNDSERV
   char buffer[256];
   
@@ -823,6 +826,7 @@ I_InitSound()
   LOG("I_InitSound: sound module ready\n");
     
 #endif
+*/
 }
 
 
@@ -910,9 +914,9 @@ int I_QrySongPlaying(int handle)
 //  time independend timer happens to get lost due to heavy load.
 // SIGALRM and ITIMER_REAL doesn't really work well.
 // There are issues with profiling as well.
-static int /*__itimer_which*/  itimer = ITIMER_REAL;
+//static int /*__itimer_which*/  itimer = ITIMER_REAL;
 
-static int sig = SIGALRM;
+//static int sig = SIGALRM;
 
 // Interrupt handler.
 void I_HandleSoundTimer( int ignore )
@@ -941,6 +945,7 @@ void I_HandleSoundTimer( int ignore )
 // Get the interrupt. Set duration in millisecs.
 int I_SoundSetTimer( int duration_of_tick )
 {
+  /*
   // Needed for gametick clockwork.
   struct itimerval    value;
   struct itimerval    ovalue;
@@ -974,6 +979,8 @@ int I_SoundSetTimer( int duration_of_tick )
     LOG("I_SoundSetTimer: interrupt n.a.\n");
   
   return res;
+  */
+  return 0; // TEMP: Temp: audio is not working, so I've commented out the unused function for now (for win32 compilation)
 }
 
 

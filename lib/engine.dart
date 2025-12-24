@@ -52,6 +52,9 @@ class Engine {
     else if (Platform.isAndroid || Platform.isLinux) {
       dylib = DynamicLibrary.open('libdoom.so');
     }
+    else {
+      dylib = DynamicLibrary.open('doom.dll');
+    }
 
     dartInitializeApiDL = dylib.lookup<NativeFunction<IntPtr Function(Pointer<Void>)>>('Dart_InitializeApiDL').asFunction();
     registerDartFramePort = dylib.lookup<NativeFunction<Void Function(Int64)>>('RegisterDartFramePort').asFunction();

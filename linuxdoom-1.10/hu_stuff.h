@@ -50,7 +50,7 @@
 void HU_Init(void);
 void HU_Start(void);
 
-boolean HU_Responder(event_t* ev);
+d_bool HU_Responder(event_t* ev);
 
 void HU_Ticker(void);
 void HU_Drawer(void);

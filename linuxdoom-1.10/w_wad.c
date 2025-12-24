@@ -25,17 +25,25 @@
 static const char
 rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 
+#include <ctype.h>
+#include "d_string.h"
 
 #ifdef NORMALUNIX
-#include <ctype.h>
 #include <sys/types.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <alloca.h>
 #define O_BINARY		0
+#endif
+
+#include "d_alloca.h"
+#include "doomdef.h"
+#include "d_unistd.h"
+
+#if IS_WINDOWS
+    #include <stdlib.h>
+    #include <io.h>
+    #define filelength _filelength
 #endif
 
 #include "doomtype.h"
@@ -63,9 +71,7 @@ int			numlumps;
 
 void**			lumpcache;
 
-
-#define strcmpi	strcasecmp
-
+#if !IS_WINDOWS
 void strupr (char* s)
 {
     while (*s) { *s = toupper(*s); s++; }
@@ -80,7 +86,7 @@ int filelength (int handle)
 
     return fileinfo.st_size;
 }
-
+#endif
 
 void
 ExtractFileBase

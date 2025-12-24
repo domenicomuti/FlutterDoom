@@ -20,17 +20,18 @@
 #define DART_INTERFACE_H
 
 #include "dart/dart_api_dl.h"
+#include "doomdef.h"
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void RegisterDartFramePort(Dart_Port port);
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void RegisterDartGenericPort(Dart_Port port);
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void NotifyDartFrameReady();
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void sendDartMessage(const char* key, const double value);
 
 #endif

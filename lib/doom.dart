@@ -155,6 +155,8 @@ class _DoomState extends State<Doom> {
   KeyEventResult _handleKeyPress(FocusNode node, KeyEvent event) {
     int asciiCode;
 
+    //print(event.logicalKey.keyLabel);
+
     switch (event.logicalKey.keyLabel) {
       case "Arrow Right":
         asciiCode = AsciiKeys.keyCodes["KEY_RIGHTARROW"]!;

@@ -49,6 +49,18 @@
     #define IS_LINUX 0
 #endif
 
+#if defined(_WIN32)
+    #define IS_WINDOWS 1
+#else
+    #define IS_WINDOWS 0
+#endif
+
+#if IS_WINDOWS
+  #define DART_VISIBILITY __declspec(dllexport)
+#else
+  #define DART_VISIBILITY __attribute__((visibility("default"))) __attribute__((used))
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
@@ -307,7 +319,7 @@ typedef enum
 
 
 
-// DOOM basic types (boolean),
+// DOOM basic types (d_bool),
 //  and max/min values.
 //#include "doomtype.h"
 

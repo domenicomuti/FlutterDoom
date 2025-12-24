@@ -31,7 +31,7 @@
 #ifdef __cplusplus
 typedef bool boolean;
 #else
-typedef int boolean;
+typedef int d_bool;
 #define false 0
 #define true 1
 #endif

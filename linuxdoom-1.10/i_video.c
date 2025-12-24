@@ -24,17 +24,7 @@
 static const char
 rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
-
 #include <stdarg.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#include <netinet/in.h>
 
 #include "doomstat.h"
 #include "i_system.h"
@@ -67,7 +57,7 @@ void I_StartTic (void)
 
 void I_SetPalette (byte* palette)
 {
-    for (int i=0 ; i<255 ; i++) {
+    for (int i=0 ; i<255; i++) {
         external_palette[i] = 0xFF000000;
 		external_palette[i] |= (gammatable[usegamma][*palette++] & ~3);
 		external_palette[i] |= (gammatable[usegamma][*palette++] & ~3) << 8;

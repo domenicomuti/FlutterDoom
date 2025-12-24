@@ -27,13 +27,19 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <string.h>
 #include <stdio.h>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
+#if defined(_WIN32)
+    #include <winsock2.h>
+    #include <stdlib.h>
+	#include <malloc.h>
+#else
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <errno.h>
+    #include <unistd.h>
+    #include <netdb.h>
+    #include <sys/ioctl.h>
+#endif
 
 #include "i_system.h"
 #include "d_event.h"
@@ -66,7 +72,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #define htons(x) ntohs(x)
 
 void	NetSend (void);
-boolean NetListen (void);
+d_bool NetListen (void);
 
 
 //
@@ -243,7 +249,7 @@ int GetLocalAddress (void)
 //
 void I_InitNetwork (void)
 {
-    boolean		trueval = true;
+    d_bool		trueval = true;
     int			i;
     int			p;
     struct hostent*	hostentry;	// host information entry
@@ -326,7 +332,7 @@ void I_InitNetwork (void)
     // build message to receive
     insocket = UDPsocket ();
     BindToLocalPort (insocket,htons(DOOMPORT));
-    ioctl (insocket, FIONBIO, &trueval);
+    //ioctl (insocket, FIONBIO, &trueval);
 
     sendsocket = UDPsocket ();
 }

@@ -25,6 +25,7 @@
 
 #include "d_ticcmd.h"
 #include "d_event.h"
+#include "doomdef.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -76,8 +77,7 @@ ticcmd_t* I_BaseTiccmd (void);
 
 // Called by M_Responder when quit is selected.
 // Clean exit, displays sell blurb.
-__attribute__((visibility("default"))) __attribute__((used))
-void I_Quit (void);
+DART_VISIBILITY void I_Quit (void);
 
 
 // Allocates from low memory under dos,

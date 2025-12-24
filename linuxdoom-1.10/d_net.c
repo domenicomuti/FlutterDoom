@@ -35,7 +35,7 @@ static const char rcsid[] = "$Id: d_net.c,v 1.3 1997/02/03 22:01:47 b1 Exp $";
 #include "doomstat.h"
 #include "debug.h"
 
-#include <pthread.h>
+#include "d_pthreads.h"
 
 extern pthread_mutex_t event_mutex;
 
@@ -66,8 +66,8 @@ ticcmd_t	localcmds[BACKUPTICS];
 
 ticcmd_t        netcmds[MAXPLAYERS][BACKUPTICS];
 int         	nettics[MAXNETNODES];
-boolean		nodeingame[MAXNETNODES];		// set false as nodes leave game
-boolean		remoteresend[MAXNETNODES];		// set when local needs tics
+d_bool		nodeingame[MAXNETNODES];		// set false as nodes leave game
+d_bool		remoteresend[MAXNETNODES];		// set when local needs tics
 int		resendto[MAXNETNODES];			// set when remote needs tics
 int		resendcount[MAXNETNODES];
 
@@ -84,7 +84,7 @@ void D_ProcessEvents (void);
 void G_BuildTiccmd (ticcmd_t *cmd); 
 void D_DoAdvanceDemo (void);
  
-boolean		reboundpacket;
+d_bool		reboundpacket;
 doomdata_t	reboundstore;
 
 
@@ -194,7 +194,7 @@ HSendPacket
 // HGetPacket
 // Returns false if no packet is waiting
 //
-boolean HGetPacket (void)
+d_bool HGetPacket (void)
 {	
     if (reboundpacket)
     {
@@ -495,7 +495,7 @@ void CheckAbort (void)
 void D_ArbitrateNetStart (void)
 {
     int		i;
-    boolean	gotinfo[MAXNETNODES];
+    d_bool	gotinfo[MAXNETNODES];
 	
     autostart = true;
     memset (gotinfo,0,sizeof(gotinfo));
@@ -650,7 +650,7 @@ int	frameon;
 int	frameskip[4];
 int	oldnettics;
 
-extern	boolean	advancedemo;
+extern	d_bool	advancedemo;
 
 void TryRunTics (void)
 {

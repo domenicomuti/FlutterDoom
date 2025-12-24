@@ -34,10 +34,10 @@ rcsid[] = "$Id: hu_lib.c,v 1.3 1997/01/26 07:44:58 b1 Exp $";
 #include "r_local.h"
 #include "r_draw.h"
 
-// boolean : whether the screen is always erased
+// d_bool : whether the screen is always erased
 #define noterased viewwindowx
 
-extern boolean	automapactive;	// in AM_map.c
+extern d_bool	automapactive;	// in AM_map.c
 
 void HUlib_init(void)
 {
@@ -65,7 +65,7 @@ HUlib_initTextLine
     HUlib_clearTextLine(t);
 }
 
-boolean
+d_bool
 HUlib_addCharToTextLine
 ( hu_textline_t*	t,
   char			ch )
@@ -83,7 +83,7 @@ HUlib_addCharToTextLine
 
 }
 
-boolean HUlib_delCharFromTextLine(hu_textline_t* t)
+d_bool HUlib_delCharFromTextLine(hu_textline_t* t)
 {
 
     if (!t->len) return false;
@@ -99,7 +99,7 @@ boolean HUlib_delCharFromTextLine(hu_textline_t* t)
 void
 HUlib_drawTextLine
 ( hu_textline_t*	l,
-  boolean		drawcursor )
+  d_bool		drawcursor )
 {
 
     int			i;
@@ -145,7 +145,7 @@ void HUlib_eraseTextLine(hu_textline_t* l)
     int			lh;
     int			y;
     int			yoffset;
-    static boolean	lastautomapactive = true;
+    static d_bool	lastautomapactive = true;
 
     // Only erases when NOT in automap and the screen is reduced,
     // and the text must either need updating or refreshing
@@ -181,7 +181,7 @@ HUlib_initSText
   int		h,
   patch_t**	font,
   int		startchar,
-  boolean*	on )
+  d_bool*	on )
 {
 
     int i;
@@ -273,7 +273,7 @@ HUlib_initIText
   int		y,
   patch_t**	font,
   int		startchar,
-  boolean*	on )
+  d_bool*	on )
 {
     it->lm = 0; // default left margin is start of text
     it->on = on;
@@ -314,7 +314,7 @@ HUlib_addPrefixToIText
 
 // wrapper function for handling general keyed input.
 // returns true if it ate the key
-boolean
+d_bool
 HUlib_keyInIText
 ( hu_itext_t*	it,
   unsigned char ch )

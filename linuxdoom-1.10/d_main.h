@@ -27,6 +27,7 @@
 
 #include "d_event.h"
 #include <stdint.h>
+#include "doomdef.h"
 
 #ifdef __GNUG__
 #pragma interface
@@ -42,10 +43,10 @@ typedef struct ThreadArgs {
 
 void D_AddFile (char *file);
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* external_palette);
 
-__attribute__((visibility("default"))) __attribute__((used))
+DART_VISIBILITY
 void DartPostInput(int dart_key, int dart_pressed_down);
 
 //
