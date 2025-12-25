@@ -30,6 +30,7 @@
 #include "doomdef.h"
 #include <stdint.h>
 #include "dart_interface.h"
+#include "s_sound.h"
 
 extern uint32_t* external_palette;
 
@@ -89,6 +90,9 @@ void I_FinishUpdate (void)
     
     }
 
+    S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+	I_UpdateSound();
+    
     NotifyDartFrameReady();
 }
 

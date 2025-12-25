@@ -52,6 +52,7 @@
 #include "miniaudio.h"
 
 ma_device device;
+ma_resampler resampler;
 
 // The number of internal mixing channels,
 //  the samples calculated for each mixing step,
@@ -79,8 +80,9 @@ int	audio_fd;
 //  are modifed and added, and stored in the buffer
 //  that is submitted to the audio device.
 signed short	mixbuffer[MIXBUFFERSIZE];
-signed int mixbuffer_r = 0;
-signed int mixbuffer_w = 0;
+short mixbuffer_temp[MIXBUFFERSIZE*4];
+unsigned int mixbuffer_r = 0;
+unsigned int mixbuffer_w = 0;
 
 
 // The channel step amount...
@@ -593,18 +595,22 @@ void I_ShutdownSound(void)
 
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
-  int samples = frameCount * pDevice->playback.channels;
-  short* out = (short*)pOutput;
+  ma_uint64 framesOut = frameCount;
+  ma_uint64 framesIn;
 
-  for (int i = 0; i < samples; i++) {
-    if (mixbuffer_r == mixbuffer_w) {
-      out[i] = 0;
-    }
-    else {
-      out[i] = mixbuffer[mixbuffer_r];
+  ma_resampler_get_required_input_frame_count(&resampler, framesOut, &framesIn);
+  
+  for (int i=0; i<framesIn*2; i++) {
+    if (mixbuffer_w != mixbuffer_r) {
+      mixbuffer_temp[i] = mixbuffer[mixbuffer_r];
       mixbuffer_r = (mixbuffer_r + 1) % MIXBUFFERSIZE;
     }
+    else {
+      mixbuffer_temp[i] = 0;
+    }
   }
+
+  ma_resampler_process_pcm_frames(&resampler, mixbuffer_temp, &framesIn, pOutput, &framesOut);
 }
 
 
@@ -620,11 +626,24 @@ I_InitSound()
   ma_device_config config  = ma_device_config_init(ma_device_type_playback);
   config.playback.format   = ma_format_s16;
   config.playback.channels = 2;
-  config.sampleRate        = SAMPLERATE;
+  config.sampleRate        = 0;
   config.dataCallback      = data_callback;
 
   if (ma_device_init(NULL, &config, &device) != MA_SUCCESS) {
     LOG(" failed to initialize the device\n");
+    return;
+  }
+
+  ma_resampler_config r_config = ma_resampler_config_init(
+    ma_format_s16,
+    2,
+    SAMPLERATE,
+    device.sampleRate,
+    ma_resample_algorithm_linear
+  );
+
+  if (ma_resampler_init(&r_config, NULL, &resampler) != MA_SUCCESS) {
+    LOG(" failed to initialize the resampler\n");
     return;
   }
 

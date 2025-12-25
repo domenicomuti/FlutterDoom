@@ -19,7 +19,6 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
 
@@ -35,11 +34,6 @@ class Engine {
   late final void Function(int, int) dartPostInput;
 
   late final AppLifecycleListener appLifecycleListener;
-
-  final int framebufferSize = 64000;
-  late final Pointer<UnsignedChar> framebuffer = malloc<UnsignedChar>(framebufferSize);
-  late final Uint32List framebuffer32 = Uint32List(framebufferSize);
-  late final Pointer<Uint32> palette = malloc<Uint32>(256);
 
   factory Engine() {
     return _instance;

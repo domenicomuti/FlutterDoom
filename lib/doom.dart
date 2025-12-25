@@ -19,6 +19,7 @@
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -51,6 +52,11 @@ class _DoomState extends State<Doom> {
   late final DoomModel model;
   late ReceivePort receiveFramePort;
 
+  final int framebufferSize = 64000;
+  late final Pointer<UnsignedChar> framebuffer = malloc<UnsignedChar>(framebufferSize);
+  late final Uint32List framebuffer32 = Uint32List(framebufferSize);
+  late final Pointer<Uint32> palette = malloc<Uint32>(256);
+
   @override
   void initState() {
     if (kDebugMode) {
@@ -71,11 +77,11 @@ class _DoomState extends State<Doom> {
 
     receiveFramePort.listen((dynamic message) async {
       // Invoked at new frame ready
-      for (int i=0; i<engine.framebufferSize; i++) {
-        engine.framebuffer32[i] = engine.palette[engine.framebuffer[i]];
+      for (int i=0; i<framebufferSize; i++) {
+        framebuffer32[i] = palette[framebuffer[i]];
       }
 
-      ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(engine.framebuffer32.buffer.asUint8List());
+      ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(framebuffer32.buffer.asUint8List());
 
       ui.Codec codec = await ui.ImageDescriptor.raw(
         immutableBuffer,
@@ -92,7 +98,7 @@ class _DoomState extends State<Doom> {
       model.refresh();
     });
 
-    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), engine.framebuffer, engine.palette);
+    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), framebuffer, palette);
   }
 
   @override
