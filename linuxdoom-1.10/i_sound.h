@@ -24,14 +24,6 @@
 #define __I_SOUND__
 
 #include "doomdef.h"
-
-// UNIX hack, to be removed.
-#ifdef SNDSERV
-#include <stdio.h>
-extern FILE* sndserver;
-extern char* sndserver_filename;
-#endif
-
 #include "doomstat.h"
 #include "sounds.h"
 
@@ -42,7 +34,6 @@ void I_InitSound();
 
 // ... update sound buffer and audio device at runtime...
 void I_UpdateSound(void);
-void I_SubmitSound(void);
 
 // ... shut down and relase at program termination.
 void I_ShutdownSound(void);

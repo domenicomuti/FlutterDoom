@@ -364,12 +364,10 @@ S_StartSoundAtVolume
   if (sfx->lumpnum < 0)
     sfx->lumpnum = I_GetSfxLumpNum(sfx);
 
-#ifndef SNDSRV
   // cache data if necessary
   if (!sfx->data)
   {
-    fprintf( stderr,
-	     "S_StartSoundAtVolume: 16bit and not pre-cached - wtf?\n");
+    fprintf( stderr, "S_StartSoundAtVolume: 16bit and not pre-cached - wtf?\n");
 
     // DOS remains, 8bit handling
     //sfx->data = (void *) W_CacheLumpNum(sfx->lumpnum, PU_MUSIC);
@@ -378,7 +376,6 @@ S_StartSoundAtVolume
     //       sfx_id, sfx->lumpnum, (int)sfx->data );
     
   }
-#endif
   
   // increase the usefulness
   if (sfx->usefulness++ < 0)
