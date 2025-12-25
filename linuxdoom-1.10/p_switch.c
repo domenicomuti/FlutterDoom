@@ -1,7 +1,5 @@
 //-----------------------------------------------------------------------------
 //
-// $Id:$
-//
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
 // This source is available for distribution and/or modification
@@ -14,7 +12,6 @@
 // for more details.
 //
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Switches, buttons. Two-state animation. Exits.

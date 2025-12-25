@@ -1,7 +1,5 @@
 //-----------------------------------------------------------------------------
 //
-// $Id:$
-//
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
 // This source is available for distribution and/or modification
@@ -13,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //
@@ -131,6 +128,7 @@ int  I_GetTime (void)
 void I_Init (void)
 {
     I_InitSound();
+    I_InitMusic();
     //I_InitGraphics();
 }
 
@@ -141,7 +139,7 @@ void I_Quit (void)
 {
     D_QuitNetGame ();
     I_ShutdownSound();
-    //I_ShutdownMusic();
+    I_ShutdownMusic();
     M_SaveDefaults ();
     I_ShutdownGraphics();
     exit(0);
