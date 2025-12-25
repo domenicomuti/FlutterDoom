@@ -600,7 +600,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 
   ma_resampler_get_required_input_frame_count(&resampler, framesOut, &framesIn);
   
-  for (int i=0; i<framesIn*2; i++) {
+  for (int i=0; i<framesIn<<1; i++) {
     if (mixbuffer_w != mixbuffer_r) {
       mixbuffer_temp[i] = mixbuffer[mixbuffer_r];
       mixbuffer_r = (mixbuffer_r + 1) % MIXBUFFERSIZE;

@@ -177,7 +177,8 @@ event_t         events[MAXEVENTS];
 int             eventhead;
 int 		eventtail;
 
-void DartPostInput(int dart_key, int dart_pressed_down) {
+void DartPostInput(int dart_key, int dart_pressed_down)
+{
 	event_t new_event;
 	new_event.data1 = dart_key;
 	new_event.type = dart_pressed_down ? ev_keydown : ev_keyup;
@@ -793,7 +794,8 @@ void FindResponseFile (void)
 	}
 }
 
-void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_palette) {
+void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_palette)
+{
 	char wad_path_full[1024];
 	char* last_slash;
 

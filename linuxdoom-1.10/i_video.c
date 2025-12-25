@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include "dart_interface.h"
 #include "s_sound.h"
+#include "i_sound.h"
 
 extern uint32_t* external_palette;
 
