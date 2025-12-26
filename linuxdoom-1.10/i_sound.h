@@ -99,6 +99,7 @@ I_PlaySong
 void I_StopSong(int handle);
 // See above (register), then think backwards
 void I_UnRegisterSong(int handle);
+int I_QrySongPlaying(int handle);
 
 
 

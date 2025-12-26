@@ -196,10 +196,11 @@ static int ID(void *id, char *check)
 {
     do
     {
-        if (*((char *)id)++ != *check++)
+        if (*(char *)id != *check++)
         {
             return 0;
         }
+        id = (char *)id + 1;        
     }
     while (*check);
 
@@ -266,7 +267,7 @@ static void VoiceVolume(CHANNEL *channel, VOICE *voice)
     u32     volume;
 
     volume = volumeTable[channel->volume] * volumeTable[channel->expression] * volumeTable[voice->volume];
-    OPL_Volume(voice->index, volume >> 16);
+    OPL_Volume(voice->index, volume >> 12);
 }
 
 static void Event_ResetControllers()

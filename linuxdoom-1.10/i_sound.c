@@ -54,7 +54,6 @@ ma_resampler resampler;
 char* genmidi = NULL;
 
 int music_samples[2] = {0};
-d_bool music_sample_leftover = false;
 
 // The number of internal mixing channels,
 //  the samples calculated for each mixing step,
@@ -359,7 +358,7 @@ void I_SetChannels()
   //  into signed samples.
   for (i=0 ; i<128 ; i++)
     for (j=0 ; j<256 ; j++)
-      vol_lookup[i*256+j] = (i*(j-128)*256)/127;
+      vol_lookup[i*256+j] = (i*(j-128)*256)/31;
 }	
 
  
@@ -623,14 +622,12 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
     }
 
     if (I_QrySongPlaying(1)) {
-      if (!music_sample_leftover) {
+      if (i % 2 == 0) {
         Midiplay_Output(music_samples);
         mixbuffer_temp[i] += Clamp(music_samples[0]);
-        music_sample_leftover = true;
       }
       else {
         mixbuffer_temp[i] += Clamp(music_samples[1]);
-        music_sample_leftover = false;
       }
     }
   }
