@@ -5,6 +5,8 @@ project(doom)
 set(SOURCES
 	../../linuxdoom-1.10/dart/dart_api_dl.c
 	../../linuxdoom-1.10/dart_interface.c
+	../../linuxdoom-1.10/Midiplay/midiplay.c
+	../../linuxdoom-1.10/Midiplay/opl.c
     ../../linuxdoom-1.10/doomdef.c
 	../../linuxdoom-1.10/doomstat.c
 	../../linuxdoom-1.10/dstrings.c

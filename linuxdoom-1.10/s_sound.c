@@ -612,7 +612,6 @@ void S_SetMusicVolume(int volume)
 		volume);
     }    
 
-    I_SetMusicVolume(127);
     I_SetMusicVolume(volume);
     snd_MusicVolume = volume;
 }
@@ -667,7 +666,7 @@ S_ChangeMusic
 
     // load & register it
     music->data = (void *) W_CacheLumpNum(music->lumpnum, PU_MUSIC);
-    music->handle = I_RegisterSong(music->data);
+    music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
 
     // play it
     I_PlaySong(music->handle, looping);

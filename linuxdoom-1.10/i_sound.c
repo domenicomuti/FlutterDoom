@@ -47,9 +47,14 @@
 #define MINIAUDIO_IMPLEMENTATION
 #define MA_DEBUG_OUTPUT
 #include "miniaudio.h"
+#include "Midiplay/midiplay.h"
 
 ma_device device;
 ma_resampler resampler;
+char* genmidi = NULL;
+
+int music_samples[2] = {0};
+d_bool music_sample_leftover = false;
 
 // The number of internal mixing channels,
 //  the samples calculated for each mixing step,
@@ -63,23 +68,21 @@ ma_resampler resampler;
 // It is 2 for 16bit, and 2 for two channels.
 #define BUFMUL                  4
 #define MIXBUFFERSIZE		(SAMPLECOUNT*BUFMUL)
+#define TEMP_MIXBUFFERSIZE MIXBUFFERSIZE*8
 
 #define SAMPLERATE		11025	// Hz
 
 // The actual lengths of all sound effects.
 int 		lengths[NUMSFX];
 
-// The actual output device.
-int	audio_fd;
-
 // The global mixing buffer.
 // Basically, samples from all active internal channels
 //  are modifed and added, and stored in the buffer
 //  that is submitted to the audio device.
-signed short	mixbuffer[MIXBUFFERSIZE];
-short mixbuffer_temp[MIXBUFFERSIZE*4];
-unsigned int mixbuffer_r = 0;
-unsigned int mixbuffer_w = 0;
+signed short  mixbuffer[MIXBUFFERSIZE];
+signed short  mixbuffer_temp[TEMP_MIXBUFFERSIZE];
+unsigned int  mixbuffer_r = 0;
+unsigned int  mixbuffer_w = 0;
 
 
 // The channel step amount...
@@ -370,13 +373,12 @@ void I_SetSfxVolume(int volume)
   snd_SfxVolume = volume;
 }
 
-// MUSIC API - dummy. Some code from DOS version.
+// MUSIC API
 void I_SetMusicVolume(int volume)
 {
   // Internal state variable.
   snd_MusicVolume = volume;
-  // Now set volume on output device.
-  // Whatever( snd_MusciVolume );
+  Midiplay_SetVolume(volume);
 }
 
 
@@ -386,9 +388,9 @@ void I_SetMusicVolume(int volume)
 //
 int I_GetSfxLumpNum(sfxinfo_t* sfx)
 {
-    char namebuf[9];
-    sprintf(namebuf, "ds%s", sfx->name);
-    return W_GetNumForName(namebuf);
+  char namebuf[9];
+  sprintf(namebuf, "ds%s", sfx->name);
+  return W_GetNumForName(namebuf);
 }
 
 //
@@ -430,13 +432,6 @@ I_StartSound
 
 void I_StopSound (int handle)
 {
-  // You need the handle returned by StartSound.
-  // Would be looping all channels,
-  //  tracking down the handle,
-  //  an setting the channel to zero.
-  
-  // UNUSED.
-  handle = 0;
 }
 
 
@@ -589,21 +584,54 @@ void I_ShutdownSound(void)
   return;
 }
 
+short Clamp(int sample)
+{
+  if (sample > 32767)
+  {
+    sample = 32767;
+  }
+  else if (sample < -32768)
+  {
+    sample = -32768;
+  }
+
+  return (short)sample;
+}
 
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
   ma_uint64 framesOut = frameCount;
   ma_uint64 framesIn;
-
   ma_resampler_get_required_input_frame_count(&resampler, framesOut, &framesIn);
+
+  ma_uint64 samplesNeeded = framesIn << 1;
+
+  if (samplesNeeded > TEMP_MIXBUFFERSIZE) {
+    samplesNeeded = TEMP_MIXBUFFERSIZE;
+    framesIn = TEMP_MIXBUFFERSIZE >> 1;
+  }
+
+  unsigned int _mixbuffer_w = mixbuffer_w;
   
-  for (int i=0; i<framesIn<<1; i++) {
-    if (mixbuffer_w != mixbuffer_r) {
+  for (int i=0; i<samplesNeeded; i++) {
+    if (_mixbuffer_w != mixbuffer_r) {
       mixbuffer_temp[i] = mixbuffer[mixbuffer_r];
       mixbuffer_r = (mixbuffer_r + 1) % MIXBUFFERSIZE;
     }
     else {
       mixbuffer_temp[i] = 0;
+    }
+
+    if (I_QrySongPlaying(1)) {
+      if (!music_sample_leftover) {
+        Midiplay_Output(music_samples);
+        mixbuffer_temp[i] += Clamp(music_samples[0]);
+        music_sample_leftover = true;
+      }
+      else {
+        mixbuffer_temp[i] += Clamp(music_samples[1]);
+        music_sample_leftover = false;
+      }
     }
   }
 
@@ -667,7 +695,7 @@ I_InitSound()
     }
   }
 
-  LOG(" pre-cached all sound data\n");
+  LOG("pre-cached all sound data\n");
   
   // Now initialize mixbuffer with zero.
   for ( i = 0; i< MIXBUFFERSIZE; i++ )
@@ -682,61 +710,53 @@ I_InitSound()
 
 //
 // MUSIC API.
-// Still no music done.
-// Remains. Dummies.
 //
-void I_InitMusic(void)		{ }
-void I_ShutdownMusic(void)	{ }
+void I_InitMusic(void)		{
+  genmidi = W_CacheLumpName("GENMIDI", PU_STATIC);
+  if (Midiplay_Init(SAMPLERATE, genmidi)) {
+    LOG("I_InitMusic: error\n");
+    return;
+  }
+  LOG("I_InitMusic: music module ready\n");
+}
 
-static int	looping=0;
-static int	musicdies=-1;
+void I_ShutdownMusic(void) {}
 
 void I_PlaySong(int handle, int looping)
 {
-  // UNUSED.
-  handle = looping = 0;
-  musicdies = gametic + TICRATE*30;
+  Midiplay_Loop(looping);
+  Midiplay_Play(1);
 }
 
 void I_PauseSong (int handle)
 {
-  // UNUSED.
-  handle = 0;
+  Midiplay_Play(0);
 }
 
 void I_ResumeSong (int handle)
 {
-  // UNUSED.
-  handle = 0;
+  Midiplay_Play(1);
 }
 
 void I_StopSong(int handle)
 {
-  // UNUSED.
-  handle = 0;
-  
-  looping = 0;
-  musicdies = 0;
+  Midiplay_Play(0);
 }
 
-void I_UnRegisterSong(int handle)
-{
-  // UNUSED.
-  handle = 0;
-}
+void I_UnRegisterSong(int handle) {}
 
-int I_RegisterSong(void* data)
+int I_RegisterSong(void* data, int length)
 {
-  // UNUSED.
-  data = NULL;
-  
+  if (Midiplay_Load(data, length)) {
+    LOG("I_RegisterSong: error\n");
+    return 0;
+  }
+  LOG("I_RegisterSong: done\n");
   return 1;
 }
 
 // Is the song playing?
 int I_QrySongPlaying(int handle)
 {
-  // UNUSED.
-  handle = 0;
-  return looping || musicdies > gametic;
+  return Midiplay_IsPlaying();
 }
