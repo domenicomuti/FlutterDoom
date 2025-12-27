@@ -28,6 +28,9 @@ constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme"
 
 // The number of Win32Window objects that currently exist.
 static int g_active_window_count = 0;
+static BOOL window_maximized = FALSE;
+static RECT prev_window_pos;
+static LONG_PTR prev_style;
 
 using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
@@ -179,6 +182,35 @@ Win32Window::MessageHandler(HWND hwnd,
                             WPARAM const wparam,
                             LPARAM const lparam) noexcept {
   switch (message) {
+    case WM_CREATE:
+      RegisterHotKey(hwnd, 1, 0, VK_F11);
+      ShowCursor(FALSE);
+      return 0;
+
+    case WM_HOTKEY:
+      if (wparam == 1) {
+        if (!window_maximized) {
+          prev_style = GetWindowLongPtr(hwnd, GWL_STYLE);
+          GetWindowRect(hwnd, &prev_window_pos);
+          SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+          int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+          int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+          SetWindowPos(hwnd, HWND_TOP, 0, 0, screenWidth, screenHeight,
+                       SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+          window_maximized = TRUE;
+        }
+        else {
+          SetWindowLongPtr(hwnd, GWL_STYLE, prev_style);
+          int w = prev_window_pos.right - prev_window_pos.left;
+          int h = prev_window_pos.bottom - prev_window_pos.top;
+          SetWindowPos(hwnd, HWND_NOTOPMOST, 
+                       prev_window_pos.left, prev_window_pos.top, w, h,
+                       SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+          window_maximized = FALSE;
+        }
+      }
+      return 0;
+
     case WM_DESTROY:
       window_handle_ = nullptr;
       Destroy();
