@@ -93,7 +93,7 @@ byte* I_ZoneBase (int*	size)
 //
 int  I_GetTime (void)
 {
-    #if IS_WINDOWS
+#if IS_WINDOWS
     int	newtics;
     static UINT64 basetime = 0;
 
@@ -104,8 +104,7 @@ int  I_GetTime (void)
         basetime = time;
     newtics = (time - basetime)*TICRATE/10000000;
     return newtics;
-
-    #else
+#else
     struct timeval tp;
     struct timezone	tzp;
     int	newtics;
@@ -116,8 +115,7 @@ int  I_GetTime (void)
 	    basetime = tp.tv_sec;
     newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
     return newtics;
-
-    #endif
+#endif
 }
 
 

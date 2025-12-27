@@ -28,9 +28,6 @@ constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme"
 
 // The number of Win32Window objects that currently exist.
 static int g_active_window_count = 0;
-static BOOL window_maximized = FALSE;
-static RECT prev_window_pos;
-static LONG_PTR prev_style;
 
 using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 

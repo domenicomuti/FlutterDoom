@@ -796,54 +796,53 @@ void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_pal
 	char wad_path_full[1024];
 	char* last_slash;
 
-	#if IS_LINUX || IS_MACOS || IS_WINDOWS
-		#if IS_LINUX
-		ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
-		if (count != -1) wad_path_full[count] = '\0';
-		last_slash = strrchr(wad_path_full, '/');
-			
-		#elif IS_MACOS
-		uint32_t size = sizeof(wad_path_full);
+#if IS_LINUX || IS_MACOS || IS_WINDOWS
+	#if IS_LINUX
+	ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
+	if (count != -1) wad_path_full[count] = '\0';
+	last_slash = strrchr(wad_path_full, '/');
+		
+	#elif IS_MACOS
+	uint32_t size = sizeof(wad_path_full);
 
-		if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
-			fprintf(stderr, "Error _NSGetExecutablePath\n");
-			return;
-		}
-		last_slash = strrchr(wad_path_full, '/');
+	if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
+		fprintf(stderr, "Error _NSGetExecutablePath\n");
+		return;
+	}
+	last_slash = strrchr(wad_path_full, '/');
 
-		#else // IS_WINDOWS
-		DWORD length = GetModuleFileNameA(NULL, wad_path_full, 1024);
-		if (length == 0) {
-			printf("Error GetModuleFileNameA(): %lu\n", GetLastError());
-			return;
-		}
-		if (length == 1024) {
-			printf("GetModuleFileNameA() error path overflow\n");
-		}
-		last_slash = strrchr(wad_path_full, '\\');
-		#endif
-
-		if (last_slash != NULL && last_slash != wad_path_full) {
-			last_slash += 1;
-			*last_slash = '\0';
-		}
-
-		strcat(wad_path_full, wad_path);
-
-	#else
-	strcpy(wad_path_full, wad_path);
-
+	#else // IS_WINDOWS
+	DWORD length = GetModuleFileNameA(NULL, wad_path_full, 1024);
+	if (length == 0) {
+		printf("Error GetModuleFileNameA(): %lu\n", GetLastError());
+		return;
+	}
+	if (length == 1024) {
+		printf("GetModuleFileNameA() error path overflow\n");
+	}
+	last_slash = strrchr(wad_path_full, '\\');
 	#endif
+
+	if (last_slash != NULL && last_slash != wad_path_full) {
+		last_slash += 1;
+		*last_slash = '\0';
+	}
+
+	strcat(wad_path_full, wad_path);
+
+#else
+	strcpy(wad_path_full, wad_path);
+#endif
 
 	LOG("WAD PATH %s\n", wad_path_full);
 	
 	strcpy(save_path, wad_path_full);
 
-	#if IS_WINDOWS
+#if IS_WINDOWS
 	last_slash = strrchr(save_path, '\\');
-	#else
+#else
 	last_slash = strrchr(save_path, '/');
-	#endif
+#endif
 
 	if (last_slash != NULL && last_slash != save_path && strlen(save_path) != 1) {
 		*last_slash = '\0';
