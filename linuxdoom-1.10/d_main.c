@@ -32,7 +32,6 @@
 
 #ifdef NORMALUNIX
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -174,11 +173,13 @@ event_t         events[MAXEVENTS];
 int             eventhead;
 int 		eventtail;
 
-void DartPostInput(int dart_key, int dart_pressed_down)
+void DartPostInput(int type, int data1, int data2, int data3)
 {
 	event_t new_event;
-	new_event.data1 = dart_key;
-	new_event.type = dart_pressed_down ? ev_keydown : ev_keyup;
+	new_event.type = type == 0 ? ev_keyup : (type == 1 ? ev_keydown : (type == 2 ? ev_mouse : ev_joystick));
+	new_event.data1 = data1;
+	new_event.data2 = data2;
+	new_event.data3 = data3;
 	D_PostEvent(&new_event);
 }
 
@@ -389,6 +390,7 @@ void D_Display (void)
 	{
 	    nowtime = I_GetTime ();
 	    tics = nowtime - wipestart;
+		usleep(1000);
 	} while (!tics);
 	wipestart = nowtime;
 	done = wipe_ScreenWipe(wipe_Melt

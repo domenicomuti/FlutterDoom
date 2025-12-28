@@ -181,7 +181,6 @@ Win32Window::MessageHandler(HWND hwnd,
   switch (message) {
     case WM_CREATE:
       RegisterHotKey(hwnd, 1, 0, VK_F11);
-      ShowCursor(FALSE);
       return 0;
 
     case WM_HOTKEY:

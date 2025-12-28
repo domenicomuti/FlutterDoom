@@ -43,7 +43,7 @@ DART_VISIBILITY
 void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* external_palette);
 
 DART_VISIBILITY
-void DartPostInput(int dart_key, int dart_pressed_down);
+void DartPostInput(int type, int data1, int data2, int data3);
 
 //
 // D_DoomMain()

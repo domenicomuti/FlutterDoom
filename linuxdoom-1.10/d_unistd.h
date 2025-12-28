@@ -13,6 +13,10 @@
     #define O_RDONLY _O_RDONLY
     #define O_BINARY _O_BINARY
     #define R_OK 4
+
+    #include "synchapi.h"
+    #define sleep(x) Sleep((x) * 1000)
+	#define usleep(x) Sleep((x) / 1000)
 #else
     #include <unistd.h>
 #endif

@@ -31,6 +31,7 @@
 #include "debug.h"
 
 #include "d_pthreads.h"
+#include "d_unistd.h"
 
 extern pthread_mutex_t event_mutex;
 
@@ -442,6 +443,7 @@ void NetUpdate (void)
     
     // listen for other packets
   listen:
+	usleep(1000);
     GetPackets ();
 }
 

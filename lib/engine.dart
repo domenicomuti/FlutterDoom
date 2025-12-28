@@ -20,7 +20,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:ffi/ffi.dart';
-import 'package:flutter/material.dart';
+//import 'package:flutter/material.dart';
 
 class Engine {
   static final Engine _instance = Engine._constructor();
@@ -31,9 +31,9 @@ class Engine {
   late final void Function(int) registerDartGenericPort;
   late final void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>) flutterDoomStart;
   late final void Function() flutterDoomQuit;
-  late final void Function(int, int) dartPostInput;
+  late final void Function(int, int, int, int) dartPostInput;
 
-  late final AppLifecycleListener appLifecycleListener;
+  //late final AppLifecycleListener appLifecycleListener;
 
   factory Engine() {
     return _instance;
@@ -55,13 +55,15 @@ class Engine {
     registerDartGenericPort = dylib.lookup<NativeFunction<Void Function(Int64)>>('RegisterDartGenericPort').asFunction();
     flutterDoomStart = dylib.lookup<NativeFunction<Void Function(Pointer<Utf8>, Pointer<UnsignedChar>, Pointer<Uint32>)>>('FlutterDoomStart').asFunction();
     flutterDoomQuit = dylib.lookup<NativeFunction<Void Function()>>('I_Quit').asFunction();
-    dartPostInput = dylib.lookup<NativeFunction<Void Function(Int32, Int32)>>('DartPostInput').asFunction();
+    dartPostInput = dylib.lookup<NativeFunction<Void Function(Int32, Int32, Int32, Int32)>>('DartPostInput').asFunction();
 
-    if (Platform.isAndroid) {
+    /*if (Platform.isAndroid) {
       // TODO: check iOS
 
       appLifecycleListener = AppLifecycleListener(
         onStateChange: (AppLifecycleState state) {
+          print("onStateChange");
+
           if (state == AppLifecycleState.detached) {
             flutterDoomQuit();
             sleep(Duration(milliseconds: 300));
@@ -69,7 +71,7 @@ class Engine {
           }
         }
       );
-    }
+    }*/
 
     // TODO: needs to be completed and tested
     dartInitializeApiDL(NativeApi.initializeApiDLData);

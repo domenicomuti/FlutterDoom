@@ -59,8 +59,6 @@
 #include "m_menu.h"
 #include "debug.h"
 
-#include "d_unistd.h"
-
 
 extern char       save_path[1000];
 

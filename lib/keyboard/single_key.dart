@@ -95,11 +95,11 @@ class SingleKeyListener extends SingleKey {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (event) {
-        engine.dartPostInput(AsciiKeys.keyCodes[asciiKey]!, 1);
+        engine.dartPostInput(1, AsciiKeys.keyCodes[asciiKey]!, 0, 0);
         model.setPressed(true);
       },
       onPointerUp: (event) {
-        engine.dartPostInput(AsciiKeys.keyCodes[asciiKey]!, 0);
+        engine.dartPostInput(0, AsciiKeys.keyCodes[asciiKey]!, 0, 0);
         model.setPressed(false);
       },
       child: super.build(context)

@@ -25,16 +25,14 @@
 #include <stdarg.h>
 #include "doomdef.h"
 
+#include "d_unistd.h"
+
 #if IS_WINDOWS
     #include <sysinfoapi.h>
 	#include <malloc.h>
     #include <stdlib.h>
-    #include <synchapi.h>
-    #define sleep(x) Sleep((x) * 1000)
-    #define usleep(x) Sleep((x) / 1000)
 #else
     #include <sys/time.h>
-    #include <unistd.h>
 #endif
 
 #include "m_misc.h"
