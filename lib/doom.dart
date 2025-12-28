@@ -66,6 +66,9 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
   late final Uint32List framebuffer32 = Uint32List(framebufferSize);
   late final Pointer<Uint32> palette = malloc<Uint32>(256);
 
+  List<double> aspectRatios = [1.333, 1.6];
+  int selectedAspectRatio = 0;
+
   @override
   void initState() {
     if (kDebugMode) {
@@ -117,6 +120,10 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
     });
 
     engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), framebuffer, palette);
+
+    if (!(Platform.isAndroid && Platform.isIOS)) {
+      _handleMouseClick();
+    }
   }
 
   @override
@@ -163,15 +170,15 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
 
     if (mediaquery.size.width >= mediaquery.size.height) {
       destHeight = mediaquery.size.height - mediaquery.padding.top - mediaquery.padding.bottom;
-      destWidth = destHeight * 1.6;
+      destWidth = destHeight * aspectRatios[selectedAspectRatio];
       if (destWidth > mediaquery.size.width) {
         destWidth = mediaquery.size.width - mediaquery.padding.left - mediaquery.padding.right;
-        destHeight = destWidth / 1.6;
+        destHeight = destWidth / aspectRatios[selectedAspectRatio];
       }
     }
     else {
       destWidth = mediaquery.size.width - mediaquery.padding.left - mediaquery.padding.right;
-      destHeight = destWidth / 1.6;
+      destHeight = destWidth / aspectRatios[selectedAspectRatio];
     }
 
     return Listener(
@@ -206,8 +213,8 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
     engine.dartPostInput(2, mouseButtonPressed, (delta.dx * mouseBaseSensitivity).round(), -(delta.dy * mouseBaseSensitivity).round());
   }
 
-  void _handleMouseClick(PointerEvent event) {
-    if (pointerLockSubscription != null) {
+  void _handleMouseClick([PointerEvent? event]) {
+    if (pointerLockSubscription != null && event != null) {
       mouseButtonPressed = event.buttons;
       engine.dartPostInput(2, mouseButtonPressed, 0, 0);
       return;
@@ -280,6 +287,14 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
       case "Backspace":
         asciiCode = AsciiKeys.keyCodes["KEY_BACKSPACE"]!;
         break;
+      
+      case "R":
+        if (altLeftActive && event is KeyDownEvent) {
+          setState(() {
+            selectedAspectRatio = selectedAspectRatio == 0 ? 1 : 0;
+          });
+        }
+        return KeyEventResult.handled;
 
       case "Q":
         if (altLeftActive) {

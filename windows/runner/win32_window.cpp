@@ -134,10 +134,16 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
+  prev_window_pos.left = Scale(origin.x, scale_factor);
+  prev_window_pos.top =  Scale(origin.y, scale_factor);
+  prev_window_pos.right = Scale(size.width, scale_factor);
+  prev_window_pos.bottom = Scale(size.height, scale_factor);
+
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
-      Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
-      Scale(size.width, scale_factor), Scale(size.height, scale_factor),
+      window_class, title.c_str(), WS_POPUP | WS_VISIBLE,
+      0, 0,
+      GetSystemMetrics(SM_CXSCREEN),
+      GetSystemMetrics(SM_CYSCREEN),
       nullptr, nullptr, GetModuleHandle(nullptr), this);
 
   if (!window) {
@@ -186,17 +192,16 @@ Win32Window::MessageHandler(HWND hwnd,
     case WM_HOTKEY:
       if (wparam == 1) {
         if (!window_maximized) {
-          prev_style = GetWindowLongPtr(hwnd, GWL_STYLE);
           GetWindowRect(hwnd, &prev_window_pos);
           SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-          int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-          int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-          SetWindowPos(hwnd, HWND_TOP, 0, 0, screenWidth, screenHeight,
+          SetWindowPos(hwnd, HWND_TOP, 0, 0,
+                       GetSystemMetrics(SM_CXSCREEN),
+                       GetSystemMetrics(SM_CYSCREEN),
                        SWP_FRAMECHANGED | SWP_SHOWWINDOW);
           window_maximized = TRUE;
         }
         else {
-          SetWindowLongPtr(hwnd, GWL_STYLE, prev_style);
+          SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
           int w = prev_window_pos.right - prev_window_pos.left;
           int h = prev_window_pos.bottom - prev_window_pos.top;
           SetWindowPos(hwnd, HWND_NOTOPMOST, 

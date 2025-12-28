@@ -9,13 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Windows desktop port
+- Alt + R to change aspect ratio (Classic / Native)
 - Audio SFX and music
-- Mouse support
+- Mouse support (Alt + Q to release mouse lock on desktop)
 
 ### Fixed
-- Fixed event handling for inactive window on desktop
-- Fixed a major memory leak in the frame blitting process
-- CPU throttling for better efficiency
+- Fixed event handling logic when the window is out of focus
+- Resolved a critical memory leak within the frame blitting pipeline
+- Improved CPU efficiency
 
 ## [0.3.0] - 2025-12-21
 
