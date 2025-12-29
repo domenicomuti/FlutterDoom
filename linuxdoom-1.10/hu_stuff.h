@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -50,7 +47,7 @@
 void HU_Init(void);
 void HU_Start(void);
 
-boolean HU_Responder(event_t* ev);
+d_bool HU_Responder(event_t* ev);
 
 void HU_Ticker(void);
 void HU_Drawer(void);
@@ -61,6 +58,5 @@ void HU_Erase(void);
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

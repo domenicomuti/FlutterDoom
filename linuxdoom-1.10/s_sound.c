@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,15 +11,12 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:  none
 //
 //-----------------------------------------------------------------------------
 
 
-static const char
-rcsid[] = "$Id: s_sound.c,v 1.6 1997/02/03 22:45:12 b1 Exp $";
 
 
 
@@ -118,7 +112,7 @@ int 		snd_MusicVolume = 15;
 
 
 // whether songs are mus_paused
-static boolean		mus_paused;	
+static d_bool		mus_paused;	
 
 // music currently being played
 static musicinfo_t*	mus_playing=0;
@@ -364,12 +358,10 @@ S_StartSoundAtVolume
   if (sfx->lumpnum < 0)
     sfx->lumpnum = I_GetSfxLumpNum(sfx);
 
-#ifndef SNDSRV
   // cache data if necessary
   if (!sfx->data)
   {
-    fprintf( stderr,
-	     "S_StartSoundAtVolume: 16bit and not pre-cached - wtf?\n");
+    fprintf( stderr, "S_StartSoundAtVolume: 16bit and not pre-cached - wtf?\n");
 
     // DOS remains, 8bit handling
     //sfx->data = (void *) W_CacheLumpNum(sfx->lumpnum, PU_MUSIC);
@@ -378,7 +370,6 @@ S_StartSoundAtVolume
     //       sfx_id, sfx->lumpnum, (int)sfx->data );
     
   }
-#endif
   
   // increase the usefulness
   if (sfx->usefulness++ < 0)
@@ -621,7 +612,6 @@ void S_SetMusicVolume(int volume)
 		volume);
     }    
 
-    I_SetMusicVolume(127);
     I_SetMusicVolume(volume);
     snd_MusicVolume = volume;
 }
@@ -654,8 +644,7 @@ S_ChangeMusic
     musicinfo_t*	music;
     char		namebuf[9];
 
-    if ( (musicnum <= mus_None)
-	 || (musicnum >= NUMMUSIC) )
+    if ( (musicnum <= mus_None) || (musicnum >= NUMMUSIC) )
     {
 	I_Error("Bad music number %d", musicnum);
     }
@@ -677,7 +666,7 @@ S_ChangeMusic
 
     // load & register it
     music->data = (void *) W_CacheLumpNum(music->lumpnum, PU_MUSIC);
-    music->handle = I_RegisterSong(music->data);
+    music->handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
 
     // play it
     I_PlaySong(music->handle, looping);

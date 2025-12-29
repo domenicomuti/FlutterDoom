@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -39,13 +36,13 @@
 //
 
 // Called by main loop.
-boolean ST_Responder (event_t* ev);
+d_bool ST_Responder (event_t* ev);
 
 // Called by main loop.
 void ST_Ticker (void);
 
 // Called by main loop.
-void ST_Drawer (boolean fullscreen, boolean refresh);
+void ST_Drawer (d_bool fullscreen, d_bool refresh);
 
 // Called when the console player is spawned on each level.
 void ST_Start (void);
@@ -74,13 +71,12 @@ typedef enum
 } st_chatstateenum_t;
 
 
-boolean ST_Responder(event_t* ev);
+d_bool ST_Responder(event_t* ev);
 
 
 
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

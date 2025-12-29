@@ -1,7 +1,7 @@
 name: flutterdoom
 description: "Vanilla Doom ported to Flutter"
 publish_to: 'none'
-version: 0.2.0
+version: 0.4.0
 
 environment:
   sdk: ^3.9.2
@@ -11,6 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
   path_provider: ^2.1.5
+  pointer_lock:
+    git:
+      url: https://github.com/domenicomuti/pointer_lock
+      ref: main
 
 dev_dependencies:
   flutter_test:

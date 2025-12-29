@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,15 +11,12 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	LineOfSight/Visibility checks, uses REJECT Lookup Table.
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: p_sight.c,v 1.3 1997/01/28 22:08:28 b1 Exp $";
 
 
 #include "doomdef.h"
@@ -132,7 +126,7 @@ P_InterceptVector2
 // Returns true
 //  if strace crosses the given subsector successfully.
 //
-boolean P_CrossSubsector (int num)
+d_bool P_CrossSubsector (int num)
 {
     seg_t*		seg;
     line_t*		line;
@@ -254,7 +248,7 @@ boolean P_CrossSubsector (int num)
 // Returns true
 //  if strace crosses the given node successfully.
 //
-boolean P_CrossBSPNode (int bspnum)
+d_bool P_CrossBSPNode (int bspnum)
 {
     node_t*	bsp;
     int		side;
@@ -296,7 +290,7 @@ boolean P_CrossBSPNode (int bspnum)
 //  if a straight line between t1 and t2 is unobstructed.
 // Uses REJECT.
 //
-boolean
+d_bool
 P_CheckSight
 ( mobj_t*	t1,
   mobj_t*	t2 )

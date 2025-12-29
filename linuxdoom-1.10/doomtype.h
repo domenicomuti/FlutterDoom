@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -29,9 +26,9 @@
 #define __BYTEBOOL__
 // Fixed to use builtin bool type with C++.
 #ifdef __cplusplus
-typedef bool boolean;
+typedef bool d_bool;
 #else
-typedef int boolean;
+typedef int d_bool;
 #define false 0
 #define true 1
 #endif
@@ -73,6 +70,5 @@ typedef unsigned char byte;
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

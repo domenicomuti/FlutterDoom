@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -106,8 +103,8 @@ typedef struct player_s
 
     // Power ups. invinc and invis are tic counters.
     int			powers[NUMPOWERS];
-    boolean		cards[NUMCARDS];
-    boolean		backpack;
+    d_bool      cards[NUMCARDS];
+    d_bool      backpack;
     
     // Frags, kills of other players.
     int			frags[MAXPLAYERS];
@@ -116,8 +113,8 @@ typedef struct player_s
     // Is wp_nochange if not changing.
     weapontype_t	pendingweapon;
 
-    boolean		weaponowned[NUMWEAPONS];
-    int			ammo[NUMAMMO];
+    d_bool      weaponowned[NUMWEAPONS];
+    int         ammo[NUMAMMO];
     int			maxammo[NUMAMMO];
 
     // True if button down last tic.
@@ -161,7 +158,7 @@ typedef struct player_s
     pspdef_t		psprites[NUMPSPRITES];
 
     // True if secret level has been done.
-    boolean		didsecret;	
+    d_bool		didsecret;	
 
 } player_t;
 
@@ -172,7 +169,7 @@ typedef struct player_s
 //
 typedef struct
 {
-    boolean	in;	// whether the player is in game
+    d_bool	in;	// whether the player is in game
     
     // Player stats, kills, collected items etc.
     int		skills;
@@ -189,7 +186,7 @@ typedef struct
     int		epsd;	// episode # (0-2)
 
     // if true, splash the secret level
-    boolean	didsecret;
+    d_bool  didsecret;
     
     // previous and next levels, origin 0
     int		last;
@@ -214,6 +211,5 @@ typedef struct
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

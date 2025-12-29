@@ -22,22 +22,26 @@
 Dart_Port dart_frame_port = ILLEGAL_PORT;
 Dart_Port dart_message_port = ILLEGAL_PORT;
 
-void RegisterDartFramePort(Dart_Port port) {
+void RegisterDartFramePort(Dart_Port port)
+{
     dart_frame_port = port;
 }
 
-void RegisterDartGenericPort(Dart_Port port) {
+void RegisterDartGenericPort(Dart_Port port)
+{
     dart_message_port = port;
 }
 
-void NotifyDartFrameReady() {
+void NotifyDartFrameReady()
+{
     if (dart_frame_port == ILLEGAL_PORT) {
         return;
     }
     Dart_PostInteger_DL(dart_frame_port, 0);
 }
 
-void sendDartMessage(const char* key, const double value) {
+void sendDartMessage(const char* key, const double value)
+{
     if (dart_message_port == ILLEGAL_PORT) {
         return;
     }

@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -429,7 +426,7 @@ typedef struct
     // If false use 0 for any position.
     // Note: as eight entries are available,
     //  we might as well insert the same name eight times.
-    boolean	rotate;
+    d_bool	rotate;
 
     // Lump to use for view angles 0-7.
     short	lump[8];
@@ -485,6 +482,5 @@ typedef struct
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

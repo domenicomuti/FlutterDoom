@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,14 +11,11 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 #include <stdlib.h>
@@ -29,10 +23,18 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 #include <string.h>
 
 #include <stdarg.h>
-#include <sys/time.h>
-#include <unistd.h>
-
 #include "doomdef.h"
+
+#include "d_unistd.h"
+
+#if IS_WINDOWS
+    #include <sysinfoapi.h>
+	#include <malloc.h>
+    #include <stdlib.h>
+#else
+    #include <sys/time.h>
+#endif
+
 #include "m_misc.h"
 #include "i_video.h"
 #include "i_sound.h"
@@ -50,7 +52,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 int	mb_used = 6;
 
-extern boolean exit_doom_loop;
+extern d_bool exit_doom_loop;
 
 
 void
@@ -89,16 +91,29 @@ byte* I_ZoneBase (int*	size)
 //
 int  I_GetTime (void)
 {
-    struct timeval	tp;
+#if IS_WINDOWS
+    int	newtics;
+    static UINT64 basetime = 0;
+
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    UINT64 time = ((UINT64)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+    if (!basetime)
+        basetime = time;
+    newtics = (time - basetime)*TICRATE/10000000;
+    return newtics;
+#else
+    struct timeval tp;
     struct timezone	tzp;
-    int			newtics;
-    static int		basetime=0;
+    int	newtics;
+    static int basetime=0;
   
     gettimeofday(&tp, &tzp);
     if (!basetime)
-	basetime = tp.tv_sec;
+	    basetime = tp.tv_sec;
     newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
     return newtics;
+#endif
 }
 
 
@@ -108,8 +123,9 @@ int  I_GetTime (void)
 //
 void I_Init (void)
 {
-    //I_InitSound();
-    //  I_InitGraphics();
+    I_InitSound();
+    I_InitMusic();
+    //I_InitGraphics();
 }
 
 //
@@ -118,8 +134,8 @@ void I_Init (void)
 void I_Quit (void)
 {
     D_QuitNetGame ();
-    //I_ShutdownSound();
-    //I_ShutdownMusic();
+    I_ShutdownSound();
+    I_ShutdownMusic();
     M_SaveDefaults ();
     I_ShutdownGraphics();
     exit(0);
@@ -161,7 +177,7 @@ byte*	I_AllocLow(int length)
 //
 // I_Error
 //
-extern boolean demorecording;
+extern d_bool demorecording;
 
 void I_Error (char *error, ...)
 {

@@ -57,7 +57,8 @@ void main() async {
     runApp(MainApp(wadPath: "data/flutter_assets/assets/doom1.wad"));
   }
   else {
-    // TODO: WINDOWS
+    // TODO: TEMP
+    runApp(MainApp(wadPath: "data\\flutter_assets\\assets\\doom1.wad"));
   }
 }
 

@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -37,13 +34,13 @@ extern sector_t*	backsector;
 extern int		rw_x;
 extern int		rw_stopx;
 
-extern boolean		segtextured;
+extern d_bool		segtextured;
 
 // false if the back side is the same plane
-extern boolean		markfloor;		
-extern boolean		markceiling;
+extern d_bool		markfloor;		
+extern d_bool		markceiling;
 
-extern boolean		skymap;
+extern d_bool		skymap;
 
 extern drawseg_t	drawsegs[MAXDRAWSEGS];
 extern drawseg_t*	ds_p;
@@ -67,6 +64,5 @@ void R_RenderBSPNode (int bspnum);
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

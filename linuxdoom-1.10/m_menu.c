@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	DOOM selection menu, options, episode etc.
@@ -22,18 +18,17 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: m_menu.c,v 1.7 1997/02/03 22:45:10 b1 Exp $";
 
-#include <unistd.h>
+#include "doomdef.h"
+
+#include "d_unistd.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <ctype.h>
 
-
-#include "doomdef.h"
 #include "dstrings.h"
 
 #include "d_main.h"
@@ -65,12 +60,12 @@ rcsid[] = "$Id: m_menu.c,v 1.7 1997/02/03 22:45:10 b1 Exp $";
 #include "debug.h"
 
 
-extern u_char       save_path[1000];
+extern char       save_path[1000];
 
 extern patch_t*		hu_font[HU_FONTSIZE];
-extern boolean		message_dontfuckwithme;
+extern d_bool		message_dontfuckwithme;
 
-extern boolean		chat_on;		// in heads-up code
+extern d_bool		chat_on;		// in heads-up code
 
 //
 // defaulted values
@@ -102,7 +97,7 @@ int			messy;
 int			messageLastMenuActive;
 
 // timed message = no input from user
-boolean			messageNeedsInput;     
+d_bool			messageNeedsInput;     
 
 void    (*messageRoutine)(int response);
 
@@ -124,13 +119,13 @@ int			saveCharIndex;	// which char we're editing
 // old save description before edit
 char			saveOldString[SAVESTRINGSIZE];  
 
-boolean			inhelpscreens;
-boolean			menuactive;
+d_bool			inhelpscreens;
+d_bool			menuactive;
 
 #define SKULLXOFF		-32
 #define LINEHEIGHT		16
 
-extern boolean		sendpause;
+extern d_bool		sendpause;
 char			savegamestrings[10][SAVESTRINGSIZE];
 
 char	endstring[160];
@@ -228,7 +223,7 @@ void M_WriteText(int x, int y, char *string);
 int  M_StringWidth(char *string);
 int  M_StringHeight(char *string);
 void M_StartControlPanel(void);
-void M_StartMessage(char *string,void *routine,boolean input);
+void M_StartMessage(char *string,void *routine, d_bool input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
 
@@ -1230,7 +1225,7 @@ void
 M_StartMessage
 ( char*		string,
   void*		routine,
-  boolean	input )
+  d_bool	input )
 {
     messageLastMenuActive = menuactive;
     messageToPrint = 1;
@@ -1348,7 +1343,7 @@ M_WriteText
 //
 // M_Responder
 //
-boolean M_Responder (event_t* ev)
+d_bool M_Responder (event_t* ev)
 {
     int             ch;
     int             i;

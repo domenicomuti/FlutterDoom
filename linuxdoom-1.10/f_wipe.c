@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Mission begin melt/wipe screen special effect.
@@ -22,7 +18,6 @@
 //-----------------------------------------------------------------------------
 
 
-static const char rcsid[] = "$Id: f_wipe.c,v 1.2 1997/02/03 22:45:09 b1 Exp $";
 
 
 
@@ -41,7 +36,7 @@ static const char rcsid[] = "$Id: f_wipe.c,v 1.2 1997/02/03 22:45:09 b1 Exp $";
 //
 
 // when zero, stop the wipe
-static boolean	go = 0;
+static d_bool	go = 0;
 
 static byte*	wipe_scr_start;
 static byte*	wipe_scr_end;
@@ -86,7 +81,7 @@ wipe_doColorXForm
   int	height,
   int	ticks )
 {
-    boolean	changed;
+    d_bool	changed;
     byte*	w;
     byte*	e;
     int		newval;
@@ -182,7 +177,7 @@ wipe_doMelt
     
     short*	s;
     short*	d;
-    boolean	done = true;
+    d_bool	done = true;
 
     width/=2;
 

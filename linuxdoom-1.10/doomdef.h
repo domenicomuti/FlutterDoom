@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -47,6 +44,18 @@
     #define IS_LINUX 1
 #else
     #define IS_LINUX 0
+#endif
+
+#if defined(_WIN32)
+    #define IS_WINDOWS 1
+#else
+    #define IS_WINDOWS 0
+#endif
+
+#if IS_WINDOWS
+  #define DART_VISIBILITY __declspec(dllexport)
+#else
+  #define DART_VISIBILITY __attribute__((visibility("default"))) __attribute__((used))
 #endif
 
 #include <stdio.h>
@@ -100,15 +109,6 @@ typedef enum
 // most parameter validation debugging code will not be compiled
 #define RANGECHECK
 
-// Do or do not use external soundserver.
-// The sndserver binary to be run separately
-//  has been introduced by Dave Taylor.
-// The integrated sound support is experimental,
-//  and unfinished. Default is synchronous.
-// Experimental asynchronous timer based is
-//  handled by SNDINTR. 
-#define SNDSERV  1
-//#define SNDINTR  1
 
 
 // This one switches between MIT SHM (no proper mouse)
@@ -307,7 +307,7 @@ typedef enum
 
 
 
-// DOOM basic types (boolean),
+// DOOM basic types (d_bool),
 //  and max/min values.
 //#include "doomtype.h"
 
@@ -359,6 +359,5 @@ typedef enum
 #endif          // __DOOMDEF__
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -15,7 +12,6 @@
 // for more details.
 //
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Main loop menu stuff.
@@ -24,19 +20,21 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: m_misc.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <unistd.h>
-
-#include <ctype.h>
-
 
 #include "doomdef.h"
+
+#include "d_unistd.h"
+
+#if IS_WINDOWS
+    #include <malloc.h>
+#endif
+
+#include <ctype.h>
 
 #include "z_zone.h"
 
@@ -71,7 +69,7 @@ int
 M_DrawText
 ( int		x,
   int		y,
-  boolean	direct,
+  d_bool	direct,
   char*		string )
 {
     int 	c;
@@ -110,7 +108,7 @@ M_DrawText
 #define O_BINARY 0
 #endif
 
-boolean
+d_bool
 M_WriteFile
 ( char const*	name,
   void*		source,
@@ -208,11 +206,6 @@ extern int	showMessages;
 extern	int	numChannels;
 
 
-// UNIX hack, to be removed.
-#ifdef SNDSERV
-extern char*	sndserver_filename;
-extern int	mb_used;
-#endif
 
 #ifdef LINUX
 char*		mousetype;
@@ -238,9 +231,6 @@ default_t	defaults[] =
     {"sfx_volume",&snd_SfxVolume, 8},
     {"music_volume",&snd_MusicVolume, 8},
     {"show_messages",&showMessages, 1},
-    
-
-#ifdef NORMALUNIX
     {"key_right",&key_right, KEY_RIGHTARROW},
     {"key_left",&key_left, KEY_LEFTARROW},
     {"key_up",&key_up, KEY_UPARROW},
@@ -252,14 +242,6 @@ default_t	defaults[] =
     {"key_use",&key_use, ' '},
     {"key_strafe",&key_strafe, KEY_RALT},
     {"key_speed",&key_speed, KEY_RSHIFT},    
-
-// UNIX hack, to be removed. 
-#ifdef SNDSERV
-    {"sndserver", (int *) &sndserver_filename, 0},
-    {"mb_used", &mb_used, 2},
-#endif
-    
-#endif
 
 #ifdef LINUX
     {"mousedev", (int*)&mousedev, 0},
@@ -347,7 +329,7 @@ void M_LoadDefaults (void)
     char	strparm[100];
     char*	newstring;
     int		parm;
-    boolean	isstring;
+    d_bool	isstring;
     
     // set everything to base values
     numdefaults = sizeof(defaults)/sizeof(defaults[0]);

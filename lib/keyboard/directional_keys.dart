@@ -59,11 +59,11 @@ class _DirectionalKeysState extends State<DirectionalKeys> {
           // If it's a different button, release the previus button and set the new one
           //debugPrint("RELEASE ${pressedKeys[pointer]}");
           if (pressedKeys[pointer]! == "KEY_UPLEFTARROW" || pressedKeys[pointer]! == "KEY_UPRIGHTARROW") {
-            engine.dartPostInput(AsciiKeys.keyCodes["KEY_UPARROW"]!, 0);
-            engine.dartPostInput(AsciiKeys.keyCodes[pressedKeys[pointer]! == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, 0);
+            engine.dartPostInput(0, AsciiKeys.keyCodes["KEY_UPARROW"]!, 0, 0);
+            engine.dartPostInput(0, AsciiKeys.keyCodes[pressedKeys[pointer]! == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, 0, 0);
           }
           else {
-            engine.dartPostInput(AsciiKeys.keyCodes[pressedKeys[pointer]!]!, 0);
+            engine.dartPostInput(0, AsciiKeys.keyCodes[pressedKeys[pointer]!]!, 0, 0);
           }         
           models[pressedKeys[pointer]!]!.setPressed(false);
           down = 1; // Goto gesture down
@@ -87,11 +87,11 @@ class _DirectionalKeysState extends State<DirectionalKeys> {
     }
 
     if (key == "KEY_UPLEFTARROW" || key == "KEY_UPRIGHTARROW") {
-      engine.dartPostInput(AsciiKeys.keyCodes["KEY_UPARROW"]!, down);
-      engine.dartPostInput(AsciiKeys.keyCodes[key == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, down);
+      engine.dartPostInput(down, AsciiKeys.keyCodes["KEY_UPARROW"]!, 0, 0);
+      engine.dartPostInput(down, AsciiKeys.keyCodes[key == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, 0, 0);
     }
     else {
-      engine.dartPostInput(AsciiKeys.keyCodes[key]!, down);
+      engine.dartPostInput(down, AsciiKeys.keyCodes[key]!, 0, 0);
     }
     models[key]!.setPressed(down == 1);
   }
@@ -106,11 +106,11 @@ class _DirectionalKeysState extends State<DirectionalKeys> {
       // If the finger moves out the area, release all the pressed buttons
       pressedKeys.forEach((key, value) {
         if (value == "KEY_UPLEFTARROW" || value == "KEY_UPRIGHTARROW") {
-          engine.dartPostInput(AsciiKeys.keyCodes["KEY_UPARROW"]!, 0);
-          engine.dartPostInput(AsciiKeys.keyCodes[value == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, 0);
+          engine.dartPostInput(0, AsciiKeys.keyCodes["KEY_UPARROW"]!, 0, 0);
+          engine.dartPostInput(0, AsciiKeys.keyCodes[value == "KEY_UPLEFTARROW" ? "KEY_LEFTARROW" : "KEY_RIGHTARROW"]!, 0, 0);
         }
         else {
-          engine.dartPostInput(AsciiKeys.keyCodes[value]!, 0);
+          engine.dartPostInput(0, AsciiKeys.keyCodes[value]!, 0, 0);
         }
         models[value]!.setPressed(false);
       });

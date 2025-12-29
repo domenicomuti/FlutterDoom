@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	DOOM main program (D_DoomMain) and game loop (D_DoomLoop),
@@ -27,17 +23,15 @@
 
 #include "d_event.h"
 #include <stdint.h>
-static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 
 #define	BGCOLOR		7
 #define	FGCOLOR		8
 
 #include "debug.h"
+#include <stdlib.h>
 
 #ifdef NORMALUNIX
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -81,7 +75,14 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #include "d_main.h"
 #include "debug.h"
 
-#include <pthread.h>
+#include "d_pthreads.h"
+
+#if IS_WINDOWS
+	pthread_mutex_t event_mutex;
+	#define strdup _strdup
+#else
+	pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 #include "dart_interface.h"
 
@@ -89,9 +90,19 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 	#include <mach-o/dyld.h>
 #endif
 
-pthread_mutex_t event_mutex = PTHREAD_MUTEX_INITIALIZER;
+#include "d_unistd.h"
 
-boolean exit_doom_loop = false;
+#if IS_WINDOWS
+	#include <stdlib.h>
+	#include <malloc.h>
+	#include <intsafe.h>
+	#include <libloaderapi.h>
+	#include <errhandlingapi.h>
+	#include <direct.h>
+	#define mkdir(path, mode) _mkdir(path)
+#endif
+
+d_bool exit_doom_loop = false;
 
 //
 // D-DoomLoop()
@@ -109,14 +120,14 @@ char		save_path[1000];
 char*		wadfiles[MAXWADFILES];
 
 
-boolean		devparm;	// started game with -devparm
-boolean         nomonsters;	// checkparm of -nomonsters
-boolean         respawnparm;	// checkparm of -respawn
-boolean         fastparm;	// checkparm of -fast
+d_bool		devparm;	// started game with -devparm
+d_bool		nomonsters;	// checkparm of -nomonsters
+d_bool		respawnparm;	// checkparm of -respawn
+d_bool		fastparm;	// checkparm of -fast
 
-boolean         drone;
+d_bool		drone;
 
-boolean		singletics = false; // debug flag to cancel adaptiveness
+d_bool		singletics = false; // debug flag to cancel adaptiveness
 
 
 
@@ -124,16 +135,16 @@ boolean		singletics = false; // debug flag to cancel adaptiveness
 //extern  int	sfxVolume;
 //extern  int	musicVolume;
 
-extern  boolean	inhelpscreens;
+extern  d_bool	inhelpscreens;
 
 skill_t		startskill;
 int             startepisode;
 int		startmap;
-boolean		autostart;
+d_bool		autostart;
 
 FILE*		debugfile;
 
-boolean		advancedemo;
+d_bool		advancedemo;
 
 
 
@@ -162,10 +173,13 @@ event_t         events[MAXEVENTS];
 int             eventhead;
 int 		eventtail;
 
-void DartPostInput(int dart_key, int dart_pressed_down) {
+void DartPostInput(int type, int data1, int data2, int data3)
+{
 	event_t new_event;
-	new_event.data1 = dart_key;
-	new_event.type = dart_pressed_down ? ev_keydown : ev_keyup;
+	new_event.type = type == 0 ? ev_keyup : (type == 1 ? ev_keydown : (type == 2 ? ev_mouse : ev_joystick));
+	new_event.data1 = data1;
+	new_event.data2 = data2;
+	new_event.data3 = data3;
 	D_PostEvent(&new_event);
 }
 
@@ -228,25 +242,25 @@ void D_ProcessEvents (void)
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
-extern  boolean setsizeneeded;
+extern  d_bool	setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
 {
-    static  boolean		viewactivestate = false;
-    static  boolean		menuactivestate = false;
-    static  boolean		inhelpscreensstate = false;
-    static  boolean		fullscreen = false;
+    static  d_bool		viewactivestate = false;
+    static  d_bool		menuactivestate = false;
+    static  d_bool		inhelpscreensstate = false;
+    static  d_bool		fullscreen = false;
     static  gamestate_t		oldgamestate = -1;
     static  int			borderdrawcount;
     int				nowtime;
     int				tics;
     int				wipestart;
     int				y;
-    boolean			done;
-    boolean			wipe;
-    boolean			redrawsbar;
+    d_bool			done;
+    d_bool			wipe;
+    d_bool			redrawsbar;
 
     if (nodrawers)
 	return;                    // for comparative timing / profiling
@@ -376,6 +390,7 @@ void D_Display (void)
 	{
 	    nowtime = I_GetTime ();
 	    tics = nowtime - wipestart;
+		usleep(1000);
 	} while (!tics);
 	wipestart = nowtime;
 	done = wipe_ScreenWipe(wipe_Melt
@@ -391,7 +406,7 @@ void D_Display (void)
 //
 //  D_DoomLoop
 //
-extern  boolean         demorecording;
+extern  d_bool         demorecording;
 
 void D_DoomLoop (void)
 {
@@ -430,23 +445,11 @@ void D_DoomLoop (void)
 	{
 	    TryRunTics (); // will run at least one tic
 	}
-		
-	S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
-
+	
 	// Update display, next frame, with current state.
 	D_Display ();
 
-#ifndef SNDSERV
-	// Sound mixing for the buffer is snychronous.
-	I_UpdateSound();
-#endif	
-	// Synchronous sound output is explicitly called.
-#ifndef SNDINTR
-	// Update sound output.
-	I_SubmitSound();
-
 	//if (exit_doom_loop > 0) break;
-#endif
     }
 }
 
@@ -607,13 +610,13 @@ void D_AddFile (char *file)
 void IdentifyVersion (char* wad_path)
 {
     char*	doom1wad = wad_path;
-    char*	doomwad;
-    char*	doomuwad;
-    char*	doom2wad;
+    char*	doomwad = "";
+    char*	doomuwad = "";
+    char*	doom2wad = "";
 
-    char*	doom2fwad;
-    char*	plutoniawad;
-    char*	tntwad;
+    char*	doom2fwad = "";
+    char*	plutoniawad = "";
+    char*	tntwad = "";
 
     if (M_CheckParm ("-shdev"))
     {
@@ -790,41 +793,59 @@ void FindResponseFile (void)
 	}
 }
 
-void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_palette) {
+void FlutterDoomStart(char* wad_path, byte* external_fb, uint32_t* _external_palette)
+{
 	char wad_path_full[1024];
 	char* last_slash;
 
-	#if IS_LINUX || IS_MACOS
-		#if IS_LINUX
-		ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
-		if (count != -1) wad_path_full[count] = '\0';
-			
-		#elif IS_MACOS
-		uint32_t size = sizeof(wad_path_full);
+#if IS_LINUX || IS_MACOS || IS_WINDOWS
+	#if IS_LINUX
+	ssize_t count = readlink("/proc/self/exe", wad_path_full, 1024);
+	if (count != -1) wad_path_full[count] = '\0';
+	last_slash = strrchr(wad_path_full, '/');
+		
+	#elif IS_MACOS
+	uint32_t size = sizeof(wad_path_full);
 
-		if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
-			fprintf(stderr, "Error _NSGetExecutablePath\n");
-			return;
-		}
-		#endif
+	if (_NSGetExecutablePath(wad_path_full, &size) != 0) {
+		fprintf(stderr, "Error _NSGetExecutablePath\n");
+		return;
+	}
+	last_slash = strrchr(wad_path_full, '/');
 
-		last_slash = strrchr(wad_path_full, '/');
-		if (last_slash != NULL && last_slash != wad_path_full) {
-			last_slash += 1;
-			*last_slash = '\0';
-		}
-
-		strcat(wad_path_full, wad_path);
-
-	#else
-	strcpy(wad_path_full, wad_path);
-
+	#else // IS_WINDOWS
+	DWORD length = GetModuleFileNameA(NULL, wad_path_full, 1024);
+	if (length == 0) {
+		printf("Error GetModuleFileNameA(): %lu\n", GetLastError());
+		return;
+	}
+	if (length == 1024) {
+		printf("GetModuleFileNameA() error path overflow\n");
+	}
+	last_slash = strrchr(wad_path_full, '\\');
 	#endif
+
+	if (last_slash != NULL && last_slash != wad_path_full) {
+		last_slash += 1;
+		*last_slash = '\0';
+	}
+
+	strcat(wad_path_full, wad_path);
+
+#else
+	strcpy(wad_path_full, wad_path);
+#endif
 
 	LOG("WAD PATH %s\n", wad_path_full);
 	
 	strcpy(save_path, wad_path_full);
+
+#if IS_WINDOWS
+	last_slash = strrchr(save_path, '\\');
+#else
 	last_slash = strrchr(save_path, '/');
+#endif
+
 	if (last_slash != NULL && last_slash != save_path && strlen(save_path) != 1) {
 		*last_slash = '\0';
 	}

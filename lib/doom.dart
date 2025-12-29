@@ -16,9 +16,11 @@
  * Foundation, Inc., 31 Milk St # 960789 Boston, MA 02196 USA.
  */
 
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -26,6 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterdoom/engine.dart';
 import 'package:flutterdoom/keyboard/ascii_keys.dart';
+import 'package:pointer_lock/pointer_lock.dart';
 
 class DoomModel extends ChangeNotifier {
   void refresh() {
@@ -42,14 +45,29 @@ class Doom extends StatefulWidget {
   State<Doom> createState() => _DoomState();
 }
 
-class _DoomState extends State<Doom> {
+class _DoomState extends State<Doom> with WidgetsBindingObserver {
   ui.Image? frame;
 
   late final FocusNode node;
   late final FocusAttachment nodeAttachment;
+  final Map<int, int> phKeyPressed = {};
+  bool altLeftActive = false;
+
+  StreamSubscription<PointerLockMoveEvent>? pointerLockSubscription;
+  final int mouseBaseSensitivity = 5;
+  int mouseButtonPressed = 0;
+
   final Engine engine = Engine();
   late final DoomModel model;
-  late ReceivePort receiveFramePort;
+  ReceivePort? receiveFramePort;
+
+  final int framebufferSize = 64000;
+  late final Pointer<UnsignedChar> framebuffer = malloc<UnsignedChar>(framebufferSize);
+  late final Uint32List framebuffer32 = Uint32List(framebufferSize);
+  late final Pointer<Uint32> palette = malloc<Uint32>(256);
+
+  List<double> aspectRatios = [1.333, 1.6];
+  int selectedAspectRatio = 0;
 
   @override
   void initState() {
@@ -57,6 +75,8 @@ class _DoomState extends State<Doom> {
       debugPrint("FLUTTERDOOM - Doom.initState()");
     }
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
 
     model = DoomModel();
 
@@ -66,18 +86,20 @@ class _DoomState extends State<Doom> {
 
     Engine engine = Engine();
 
-    receiveFramePort = ReceivePort();
-    engine.registerDartFramePort(receiveFramePort.sendPort.nativePort);
+    if (receiveFramePort == null) {
+      receiveFramePort = ReceivePort();
+      engine.registerDartFramePort(receiveFramePort!.sendPort.nativePort);
+    }
 
-    receiveFramePort.listen((dynamic message) async {
+    receiveFramePort!.listen((dynamic message) async {
       // Invoked at new frame ready
-      for (int i=0; i<engine.framebufferSize; i++) {
-        engine.framebuffer32[i] = engine.palette[engine.framebuffer[i]];
+      for (int i=0; i<framebufferSize; i++) {
+        framebuffer32[i] = palette[framebuffer[i]];
       }
 
-      ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(engine.framebuffer32.buffer.asUint8List());
+      final ui.ImmutableBuffer immutableBuffer = await ui.ImmutableBuffer.fromUint8List(framebuffer32.buffer.asUint8List());
 
-      ui.Codec codec = await ui.ImageDescriptor.raw(
+      final ui.Codec codec = await ui.ImageDescriptor.raw(
         immutableBuffer,
         width: 320,
         height: 200,
@@ -85,22 +107,48 @@ class _DoomState extends State<Doom> {
         pixelFormat: ui.PixelFormat.rgba8888,
       ).instantiateCodec();
 
-      ui.FrameInfo frameInfo = await codec.getNextFrame();
-
+      final ui.FrameInfo frameInfo = await codec.getNextFrame();
+          
+      final oldFrame = frame;
       frame = frameInfo.image;
+      oldFrame?.dispose(); 
 
       model.refresh();
+      
+      codec.dispose();
+      immutableBuffer.dispose();
     });
 
-    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), engine.framebuffer, engine.palette);
+    engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), framebuffer, palette);
   }
 
   @override
   void dispose() {
-    receiveFramePort.close();
+    var receviPortToClose = receiveFramePort;
+    receiveFramePort = null;
+    receviPortToClose!.close();
     node.dispose();
     model.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (
+      state == AppLifecycleState.inactive ||
+      state == AppLifecycleState.detached ||
+      state == AppLifecycleState.hidden ||
+      state == AppLifecycleState.paused
+    ) {
+      if (kDebugMode) {
+        debugPrint("FLUTTERDOOM - Focus lost -> sending key-up events to the Doom engine for all pressed keys");
+      }
+      for (int key in phKeyPressed.keys) {
+        engine.dartPostInput(0, key, 0, 0);
+      }
+      phKeyPressed.clear();
+    }
   }
 
   @override
@@ -118,42 +166,78 @@ class _DoomState extends State<Doom> {
 
     if (mediaquery.size.width >= mediaquery.size.height) {
       destHeight = mediaquery.size.height - mediaquery.padding.top - mediaquery.padding.bottom;
-      destWidth = destHeight * 1.6;
+      destWidth = destHeight * aspectRatios[selectedAspectRatio];
       if (destWidth > mediaquery.size.width) {
         destWidth = mediaquery.size.width - mediaquery.padding.left - mediaquery.padding.right;
-        destHeight = destWidth / 1.6;
+        destHeight = destWidth / aspectRatios[selectedAspectRatio];
       }
     }
     else {
       destWidth = mediaquery.size.width - mediaquery.padding.left - mediaquery.padding.right;
-      destHeight = destWidth / 1.6;
+      destHeight = destWidth / aspectRatios[selectedAspectRatio];
     }
 
-    return ListenableBuilder(
-      listenable: model,
-      builder: (context, child) {
-        if (frame == null) {
-          return SizedBox(
-            width: destWidth,
-            height: destHeight,
-            child: Center(child: Text("Doom is starting...", style: TextStyle(color: Colors.grey))),
-          );
+    return Listener(
+      onPointerMove: Platform.isAndroid || Platform.isIOS ? (e) => _handleMouseMove(e.delta) : null,
+      onPointerDown: Platform.isAndroid || Platform.isIOS ? null : _handleMouseClick,
+      onPointerUp: Platform.isAndroid || Platform.isIOS ? null : _handleMouseClick,
+      child: ListenableBuilder(
+        listenable: model,
+        builder: (context, child) {
+          if (frame == null) {
+            return SizedBox(
+              width: destWidth,
+              height: destHeight,
+              child: Center(child: Text("Doom is starting...", style: TextStyle(color: Colors.grey))),
+            );
+          }
+          else {
+            return Center(
+              child: CustomPaint(
+                willChange: true,
+                painter: FramebufferPainter(width: destWidth, height: destHeight, frame: frame!),
+                size: ui.Size(destWidth, destHeight)
+              )
+            );
+          }
         }
-        else {
-          return Center(
-            child: CustomPaint(
-              willChange: true,
-              painter: FramebufferPainter(width: destWidth, height: destHeight, frame: frame!),
-              size: ui.Size(destWidth, destHeight)
-            )
-          );
+      )
+    );
+  }
+
+  void _handleMouseMove(Offset delta) {
+    engine.dartPostInput(2, mouseButtonPressed, (delta.dx * mouseBaseSensitivity).round(), -(delta.dy * mouseBaseSensitivity).round());
+  }
+
+  void _handleMouseClick([PointerEvent? event]) {
+    if (pointerLockSubscription != null && event != null) {
+      mouseButtonPressed = event.buttons;
+      engine.dartPostInput(2, mouseButtonPressed, 0, 0);
+      return;
+    }
+
+    pointerLockSubscription = pointerLock.createSession(
+      windowsMode: PointerLockWindowsMode.capture,
+      cursor: PointerLockCursor.hidden
+    )
+    .listen(
+      (event) {
+        _handleMouseMove(event.delta);
+      },
+      onError: (error) {
+        if (kDebugMode) {
+          debugPrint('FLUTTERDOOM - Pointer lock error: $error');          
         }
-      }
+      },
     );
   }
 
   KeyEventResult _handleKeyPress(FocusNode node, KeyEvent event) {
+    if (event.synthesized) return KeyEventResult.ignored;
+
     int asciiCode;
+
+    //print(event.logicalKey.keyLabel);
 
     switch (event.logicalKey.keyLabel) {
       case "Arrow Right":
@@ -185,11 +269,13 @@ class _DoomState extends State<Doom> {
       case "Tab":
         asciiCode = AsciiKeys.keyCodes["KEY_TAB"]!;
         break;
-
+        
+      case "Control Left":
       case "Control Right":
         asciiCode = AsciiKeys.keyCodes["KEY_RCTRL"]!;
         break;
 
+      case "Shift Left":
       case "Shift Right":
         asciiCode = AsciiKeys.keyCodes["KEY_RSHIFT"]!;
         break;
@@ -197,6 +283,22 @@ class _DoomState extends State<Doom> {
       case "Backspace":
         asciiCode = AsciiKeys.keyCodes["KEY_BACKSPACE"]!;
         break;
+      
+      case "R":
+        if (altLeftActive && event is KeyDownEvent) {
+          setState(() {
+            selectedAspectRatio = selectedAspectRatio == 0 ? 1 : 0;
+          });
+        }
+        return KeyEventResult.handled;
+
+      case "Q":
+        if (altLeftActive) {
+          var pointerLockSubscriptionToRemove = pointerLockSubscription;
+          pointerLockSubscription = null;
+          pointerLockSubscriptionToRemove?.cancel();
+        }
+        return KeyEventResult.handled;
 
       case "F1":
         asciiCode = AsciiKeys.keyCodes["KEY_F1"]!;
@@ -251,6 +353,7 @@ class _DoomState extends State<Doom> {
         break;
 
       case "Alt Left":
+        altLeftActive = event is KeyDownEvent;
         asciiCode = AsciiKeys.keyCodes["KEY_LALT"]!;
         break;
 
@@ -267,7 +370,17 @@ class _DoomState extends State<Doom> {
         asciiCode = event.logicalKey.keyId;
     }
 
-    engine.dartPostInput(asciiCode, event is KeyDownEvent || event is KeyRepeatEvent ? 1 : 0);
+    bool keyDownEvent = event is KeyDownEvent || event is KeyRepeatEvent;
+
+    if (keyDownEvent) {
+      phKeyPressed[asciiCode] = 1;
+      engine.dartPostInput(1, asciiCode, 0, 0);
+    }
+    else if (phKeyPressed.containsKey(asciiCode)) {
+      engine.dartPostInput(0, asciiCode, 0, 0);
+      phKeyPressed.remove(asciiCode);
+    }
+    
     return KeyEventResult.handled;
   }
 }

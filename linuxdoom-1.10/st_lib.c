@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	The status bar widget code.
@@ -22,8 +18,6 @@
 //-----------------------------------------------------------------------------
 
 
-static const char
-rcsid[] = "$Id: st_lib.c,v 1.4 1997/02/03 16:47:56 b1 Exp $";
 
 #include <ctype.h>
 
@@ -44,7 +38,7 @@ rcsid[] = "$Id: st_lib.c,v 1.4 1997/02/03 16:47:56 b1 Exp $";
 
 
 // in AM_map.c
-extern boolean		automapactive; 
+extern d_bool		automapactive; 
 
 
 
@@ -69,7 +63,7 @@ STlib_initNum
   int			y,
   patch_t**		pl,
   int*			num,
-  boolean*		on,
+  d_bool*		on,
   int			width )
 {
     n->x	= x;
@@ -90,7 +84,7 @@ STlib_initNum
 void
 STlib_drawNum
 ( st_number_t*	n,
-  boolean	refresh )
+  d_bool	refresh )
 {
 
     int		numdigits = n->width;
@@ -152,7 +146,7 @@ STlib_drawNum
 void
 STlib_updateNum
 ( st_number_t*		n,
-  boolean		refresh )
+  d_bool		refresh )
 {
     if (*n->on) STlib_drawNum(n, refresh);
 }
@@ -166,7 +160,7 @@ STlib_initPercent
   int			y,
   patch_t**		pl,
   int*			num,
-  boolean*		on,
+  d_bool*		on,
   patch_t*		percent )
 {
     STlib_initNum(&p->n, x, y, pl, num, on, 3);
@@ -196,7 +190,7 @@ STlib_initMultIcon
   int			y,
   patch_t**		il,
   int*			inum,
-  boolean*		on )
+  d_bool*		on )
 {
     i->x	= x;
     i->y	= y;
@@ -211,7 +205,7 @@ STlib_initMultIcon
 void
 STlib_updateMultIcon
 ( st_multicon_t*	mi,
-  boolean		refresh )
+  d_bool		refresh )
 {
     int			w;
     int			h;
@@ -247,8 +241,8 @@ STlib_initBinIcon
   int			x,
   int			y,
   patch_t*		i,
-  boolean*		val,
-  boolean*		on )
+  d_bool*		val,
+  d_bool*		on )
 {
     b->x	= x;
     b->y	= y;
@@ -263,7 +257,7 @@ STlib_initBinIcon
 void
 STlib_updateBinIcon
 ( st_binicon_t*		bi,
-  boolean		refresh )
+  d_bool		refresh )
 {
     int			x;
     int			y;

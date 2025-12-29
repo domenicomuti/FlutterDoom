@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // Revision 1.3  1997/01/29 20:10
 // DESCRIPTION:
@@ -25,8 +21,6 @@
 
 
 #include <stdint.h>
-static const char
-rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 
 #include "i_system.h"
 #include "z_zone.h"
@@ -42,9 +36,9 @@ rcsid[] = "$Id: r_data.c,v 1.4 1997/02/03 16:47:55 b1 Exp $";
 #include "doomstat.h"
 #include "r_sky.h"
 
-#ifdef LINUX
-#include  <alloca.h>
-#endif
+#include "d_alloca.h"
+
+#include "d_string.h"
 
 
 #include "r_data.h"
@@ -86,7 +80,7 @@ typedef struct
 typedef struct
 {
     char		name[8];
-    boolean		masked;	
+    d_bool		masked;	
     short		width;
     short		height;
     int		    columndirectory;	// OBSOLETE

@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Refresh of things, i.e. objects represented by sprites.
@@ -22,8 +18,6 @@
 //-----------------------------------------------------------------------------
 
 
-static const char
-rcsid[] = "$Id: r_things.c,v 1.5 1997/02/03 16:47:56 b1 Exp $";
 
 
 #include <stdio.h>
@@ -107,7 +101,7 @@ R_InstallSpriteLump
 ( int		lump,
   unsigned	frame,
   unsigned	rotation,
-  boolean	flipped )
+  d_bool	flipped )
 {
     int		r;
 	
@@ -470,7 +464,7 @@ void R_ProjectSprite (mobj_t* thing)
     int			lump;
     
     unsigned		rot;
-    boolean		flip;
+    d_bool		flip;
     
     int			index;
 
@@ -522,13 +516,13 @@ void R_ProjectSprite (mobj_t* thing)
 	ang = R_PointToAngle (thing->x, thing->y);
 	rot = (ang-thing->angle+(unsigned)(ANG45/2)*9)>>29;
 	lump = sprframe->lump[rot];
-	flip = (boolean)sprframe->flip[rot];
+	flip = (d_bool)sprframe->flip[rot];
     }
     else
     {
 	// use single rotation for all views
 	lump = sprframe->lump[0];
-	flip = (boolean)sprframe->flip[0];
+	flip = (d_bool)sprframe->flip[0];
     }
     
     // calculate edges of the shape
@@ -651,7 +645,7 @@ void R_DrawPSprite (pspdef_t* psp)
     spritedef_t*	sprdef;
     spriteframe_t*	sprframe;
     int			lump;
-    boolean		flip;
+    d_bool		flip;
     vissprite_t*	vis;
     vissprite_t		avis;
     
@@ -670,7 +664,7 @@ void R_DrawPSprite (pspdef_t* psp)
     sprframe = &sprdef->spriteframes[ psp->state->frame & FF_FRAMEMASK ];
 
     lump = sprframe->lump[0];
-    flip = (boolean)sprframe->flip[0];
+    flip = (d_bool)sprframe->flip[0];
     
     // calculate edges of the shape
     tx = psp->sx-160*FRACUNIT;

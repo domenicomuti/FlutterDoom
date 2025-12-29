@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,27 +11,14 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	DOOM graphics stuff for X11, UNIX.
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
-
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
 
 #include <stdarg.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-#include <netinet/in.h>
 
 #include "doomstat.h"
 #include "i_system.h"
@@ -43,6 +27,8 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include "doomdef.h"
 #include <stdint.h>
 #include "dart_interface.h"
+#include "s_sound.h"
+#include "i_sound.h"
 
 extern uint32_t* external_palette;
 
@@ -67,7 +53,7 @@ void I_StartTic (void)
 
 void I_SetPalette (byte* palette)
 {
-    for (int i=0 ; i<255 ; i++) {
+    for (int i=0 ; i<255; i++) {
         external_palette[i] = 0xFF000000;
 		external_palette[i] |= (gammatable[usegamma][*palette++] & ~3);
 		external_palette[i] |= (gammatable[usegamma][*palette++] & ~3) << 8;
@@ -102,6 +88,9 @@ void I_FinishUpdate (void)
     
     }
 
+    S_UpdateSounds (players[consoleplayer].mo);// move positional sounds
+	I_UpdateSound();
+    
     NotifyDartFrameReady();
 }
 

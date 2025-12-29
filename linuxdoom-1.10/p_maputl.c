@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Movement/collision utility functions,
@@ -24,8 +20,6 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: p_maputl.c,v 1.5 1997/02/03 22:45:11 b1 Exp $";
 
 
 #include <stdlib.h>
@@ -468,11 +462,11 @@ P_SetThingPosition (mobj_t* thing)
 // to P_BlockLinesIterator, then make one or more calls
 // to it.
 //
-boolean
+d_bool
 P_BlockLinesIterator
 ( int			x,
   int			y,
-  boolean(*func)(line_t*) )
+  d_bool(*func)(line_t*) )
 {
     int			offset;
     short*		list;
@@ -509,11 +503,11 @@ P_BlockLinesIterator
 //
 // P_BlockThingsIterator
 //
-boolean
+d_bool
 P_BlockThingsIterator
 ( int			x,
   int			y,
-  boolean(*func)(mobj_t*) )
+  d_bool(*func)(mobj_t*) )
 {
     mobj_t*		mobj;
 	
@@ -545,7 +539,7 @@ intercept_t	intercepts[MAXINTERCEPTS];
 intercept_t*	intercept_p;
 
 divline_t 	trace;
-boolean 	earlyout;
+d_bool 	earlyout;
 int		ptflags;
 
 //
@@ -558,7 +552,7 @@ int		ptflags;
 // are on opposite sides of the trace.
 // Returns true if earlyout and a solid line hit.
 //
-boolean
+d_bool
 PIT_AddLineIntercepts (line_t* ld)
 {
     int			s1;
@@ -613,7 +607,7 @@ PIT_AddLineIntercepts (line_t* ld)
 //
 // PIT_AddThingIntercepts
 //
-boolean PIT_AddThingIntercepts (mobj_t* thing)
+d_bool PIT_AddThingIntercepts (mobj_t* thing)
 {
     fixed_t		x1;
     fixed_t		y1;
@@ -623,7 +617,7 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
     int			s1;
     int			s2;
     
-    boolean		tracepositive;
+    d_bool		tracepositive;
 
     divline_t		dl;
     
@@ -679,7 +673,7 @@ boolean PIT_AddThingIntercepts (mobj_t* thing)
 // Returns true if the traverser function returns true
 // for all lines.
 // 
-boolean
+d_bool
 P_TraverseIntercepts
 ( traverser_t	func,
   fixed_t	maxfrac )
@@ -739,14 +733,14 @@ P_TraverseIntercepts
 // Returns true if the traverser function returns true
 // for all lines.
 //
-boolean
+d_bool
 P_PathTraverse
 ( fixed_t		x1,
   fixed_t		y1,
   fixed_t		x2,
   fixed_t		y2,
   int			flags,
-  boolean (*trav) (intercept_t *))
+  d_bool (*trav) (intercept_t *))
 {
     fixed_t	xt1;
     fixed_t	yt1;

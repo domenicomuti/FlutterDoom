@@ -5,6 +5,8 @@ project(doom)
 set(SOURCES
 	../../linuxdoom-1.10/dart/dart_api_dl.c
 	../../linuxdoom-1.10/dart_interface.c
+	../../linuxdoom-1.10/Midiplay/midiplay.c
+	../../linuxdoom-1.10/Midiplay/opl.c
     ../../linuxdoom-1.10/doomdef.c
 	../../linuxdoom-1.10/doomstat.c
 	../../linuxdoom-1.10/dstrings.c
@@ -70,14 +72,33 @@ set(SOURCES
 
 add_library(doom SHARED ${SOURCES})
 
-target_compile_options(doom PRIVATE
-    -g -Wall -DNORMALUNIX -DLINUX
-	-Wno-unused-const-variable
-)
+if(WIN32)
+	set_target_properties(doom PROPERTIES C_STANDARD 11)
 
-target_link_libraries(doom PRIVATE
-	m
-)
+	target_compile_options(doom PRIVATE
+		/Zi /W4
+	)
+
+	target_compile_definitions(doom PRIVATE 
+		DART_SHARED_LIB
+		_CRT_SECURE_NO_WARNINGS
+		_WINSOCK_DEPRECATED_NO_WARNINGS
+		_AMD64_
+	)
+
+	target_link_libraries(doom PRIVATE 
+		ws2_32
+	)
+else()
+	target_compile_options(doom PRIVATE
+		-g -Wall -DNORMALUNIX -DLINUX
+		-Wno-unused-const-variable
+	)
+
+	target_link_libraries(doom PRIVATE
+		m
+	)
+endif()
 
 if(ANDROID)
 	target_link_libraries(doom PRIVATE

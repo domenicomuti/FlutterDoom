@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -29,7 +26,7 @@
 
 
 // Called by main loop.
-boolean AM_Responder (event_t* ev);
+d_bool AM_Responder (event_t* ev);
 
 // Called by main loop.
 void AM_Ticker (void);
@@ -47,6 +44,5 @@ void AM_Stop (void);
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

@@ -20,7 +20,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
 
 SPEC CHECKSUMS:
-  DoomSource: 46e9118a2360daf8564bb188eca32044cb2d59ec
+  DoomSource: e673b027c110b345ac84305a60d5ea55c3b2315a
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
 

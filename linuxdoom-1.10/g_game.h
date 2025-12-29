@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -58,7 +55,7 @@ void G_BeginRecording (void);
 
 void G_PlayDemo (char* name);
 void G_TimeDemo (char* name);
-boolean G_CheckDemoStatus (void);
+d_bool G_CheckDemoStatus (void);
 
 void G_ExitLevel (void);
 void G_SecretExitLevel (void);
@@ -66,7 +63,7 @@ void G_SecretExitLevel (void);
 void G_WorldDone (void);
 
 void G_Ticker (void);
-boolean G_Responder (event_t*	ev);
+d_bool G_Responder (event_t*	ev);
 
 void G_ScreenShot (void);
 
@@ -74,6 +71,5 @@ void G_ScreenShot (void);
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

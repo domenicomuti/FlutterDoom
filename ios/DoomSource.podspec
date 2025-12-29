@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
 
   s.prepare_command = "chmod +x ../doomsource_apple_workaround.sh && ../doomsource_apple_workaround.sh"
   s.source = { :path => '.' }
-  s.source_files = 'linuxdoom-1.10/**/*.c'
+  s.source_files = 'linuxdoom-1.10/**/*.{c,m}'
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
 end

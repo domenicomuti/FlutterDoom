@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -24,14 +21,6 @@
 #define __I_SOUND__
 
 #include "doomdef.h"
-
-// UNIX hack, to be removed.
-#ifdef SNDSERV
-#include <stdio.h>
-extern FILE* sndserver;
-extern char* sndserver_filename;
-#endif
-
 #include "doomstat.h"
 #include "sounds.h"
 
@@ -42,7 +31,6 @@ void I_InitSound();
 
 // ... update sound buffer and audio device at runtime...
 void I_UpdateSound(void);
-void I_SubmitSound(void);
 
 // ... shut down and relase at program termination.
 void I_ShutdownSound(void);
@@ -98,7 +86,7 @@ void I_SetMusicVolume(int volume);
 void I_PauseSong(int handle);
 void I_ResumeSong(int handle);
 // Registers a song handle to song data.
-int I_RegisterSong(void *data);
+int I_RegisterSong(void *data, int length);
 // Called by anything that wishes to start music.
 //  plays a song, and when the song is done,
 //  starts playing it again in an endless loop.
@@ -111,12 +99,12 @@ I_PlaySong
 void I_StopSong(int handle);
 // See above (register), then think backwards
 void I_UnRegisterSong(int handle);
+int I_QrySongPlaying(int handle);
 
 
 
 #endif
 //-----------------------------------------------------------------------------
 //
-// $Log:$
 //
 //-----------------------------------------------------------------------------

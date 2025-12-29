@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Weapon sprite animation, weapon objects.
@@ -22,8 +18,6 @@
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: p_pspr.c,v 1.5 1997/02/03 22:45:12 b1 Exp $";
 
 #include "doomdef.h"
 #include "d_event.h"
@@ -158,7 +152,7 @@ void P_BringUpWeapon (player_t* player)
 // Returns true if there is enough ammo to shoot.
 // If not, selects the next weapon to use.
 //
-boolean P_CheckAmmo (player_t* player)
+d_bool P_CheckAmmo (player_t* player)
 {
     ammotype_t		ammo;
     int			count;
@@ -625,7 +619,7 @@ void P_BulletSlope (mobj_t*	mo)
 void
 P_GunShot
 ( mobj_t*	mo,
-  boolean	accurate )
+  d_bool	accurate )
 {
     angle_t	angle;
     int		damage;

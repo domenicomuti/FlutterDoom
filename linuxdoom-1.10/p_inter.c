@@ -1,7 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
-//
-// $Id:$
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -14,7 +11,6 @@
 // FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
 // for more details.
 //
-// $Log:$
 //
 // DESCRIPTION:
 //	Handling interactions (i.e., collisions).
@@ -22,8 +18,6 @@
 //-----------------------------------------------------------------------------
 
 
-static const char
-rcsid[] = "$Id: p_inter.c,v 1.4 1997/02/03 22:45:11 b1 Exp $";
 
 
 // Data.
@@ -70,7 +64,7 @@ int	clipammo[NUMAMMO] = {10, 4, 20, 1};
 // Returns false if the ammo can't be picked up at all
 //
 
-boolean
+d_bool
 P_GiveAmmo
 ( player_t*	player,
   ammotype_t	ammo,
@@ -164,14 +158,14 @@ P_GiveAmmo
 // P_GiveWeapon
 // The weapon name may have a MF_DROPPED flag ored in.
 //
-boolean
+d_bool
 P_GiveWeapon
 ( player_t*	player,
   weapontype_t	weapon,
-  boolean	dropped )
+  d_bool	dropped )
 {
-    boolean	gaveammo;
-    boolean	gaveweapon;
+    d_bool	gaveammo;
+    d_bool	gaveweapon;
 	
     if (netgame
 	&& (deathmatch!=2)
@@ -225,7 +219,7 @@ P_GiveWeapon
 // P_GiveBody
 // Returns false if the body isn't needed at all
 //
-boolean
+d_bool
 P_GiveBody
 ( player_t*	player,
   int		num )
@@ -248,7 +242,7 @@ P_GiveBody
 // Returns false if the armor is worse
 // than the current armor.
 //
-boolean
+d_bool
 P_GiveArmor
 ( player_t*	player,
   int		armortype )
@@ -286,7 +280,7 @@ P_GiveCard
 //
 // P_GivePower
 //
-boolean
+d_bool
 P_GivePower
 ( player_t*	player,
   int /*powertype_t*/	power )
