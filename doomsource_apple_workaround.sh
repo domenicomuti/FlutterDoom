@@ -31,6 +31,7 @@ if [[ "$CURRENT_DIR" == "macos" ]]; then
     find . -type f -exec sh -c 'dest="../macos/linuxdoom-1.10/{}"; mkdir -p "$(dirname "$dest")" && ln "{}" "$dest"' \;
 else
     find . -type f -exec sh -c 'dest="../ios/linuxdoom-1.10/{}"; mkdir -p "$(dirname "$dest")" && ln "{}" "$dest"' \;
+    mv ../ios/linuxdoom-1.10/i_sound.c ../ios/linuxdoom-1.10/i_sound.m
 fi
 
 cd ../$CURRENT_DIR
