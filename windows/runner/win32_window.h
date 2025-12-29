@@ -100,6 +100,7 @@ class Win32Window {
 
   BOOL window_maximized = FALSE;
   RECT prev_window_pos;
+  LONG_PTR prev_style;
 };
 
 #endif  // RUNNER_WIN32_WINDOW_H_
