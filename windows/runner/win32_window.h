@@ -98,7 +98,7 @@ class Win32Window {
   // window handle for hosted content.
   HWND child_content_ = nullptr;
 
-  BOOL window_maximized = TRUE;
+  BOOL window_maximized = FALSE;
   RECT prev_window_pos;
 };
 

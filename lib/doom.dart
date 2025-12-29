@@ -120,10 +120,6 @@ class _DoomState extends State<Doom> with WidgetsBindingObserver {
     });
 
     engine.flutterDoomStart(widget.wadPath.toNativeUtf8(), framebuffer, palette);
-
-    if (!(Platform.isAndroid && Platform.isIOS)) {
-      _handleMouseClick();
-    }
   }
 
   @override
