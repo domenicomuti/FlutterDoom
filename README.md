@@ -2,7 +2,7 @@
 
 ![Video Demo](demo.gif)
 
-A new Doom port based on the original 1997 source code, built for Android, iOS, Linux and macOS using Flutter and dart:ffi.
+A new Doom port based on the original 1997 source code, built for Android, iOS, Linux, macOS and Windows using Flutter and dart:ffi.
 
 For comprehensive details on how it was made, I created a highly detailed post on my blog.
 
@@ -30,6 +30,9 @@ flutter run -d macos
 
 # Linux
 flutter run -d linux
+
+# Windows
+flutter run -d windows
 
 ```
 
